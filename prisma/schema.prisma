@@ -23,3 +23,40 @@ model Session {
   accessToken String
   userId      BigInt?
 }
+
+model EmailProvider {
+  id             Int              @id @default(autoincrement())
+  name           String
+  privateKeys    PrivateKey[]
+  EmailGenerator EmailGenerator[]
+}
+
+model LLMProvider {
+  id             Int              @id @default(autoincrement())
+  name           String
+  privateKeys    PrivateKey[]
+  EmailGenerator EmailGenerator[]
+}
+
+model PrivateKey {
+  id              Int            @id @default(autoincrement())
+  shop            String
+  key             String
+  EmailProvider   EmailProvider? @relation(fields: [emailProviderId], references: [id])
+  emailProviderId Int?
+  LLMProvider     LLMProvider?   @relation(fields: [lLMProviderId], references: [id])
+  lLMProviderId   Int?
+}
+
+model EmailGenerator {
+  id               Int            @id @default(autoincrement())
+  title            String
+  productId        String
+  productHandle    String
+  productVariantId String
+  emailProviderId  Int?
+  emailProvider    EmailProvider? @relation(fields: [emailProviderId], references: [id])
+  llmProviderId    Int?
+  LLMProvider      LLMProvider?   @relation(fields: [llmProviderId], references: [id])
+  createdAt        DateTime       @default(now())
+}
