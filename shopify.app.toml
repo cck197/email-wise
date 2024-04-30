@@ -1,0 +1,29 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "2f27e2979def2c34cdcbb5f3f7fe626c"
+name = "EmailWise"
+handle = "emailwise-2"
+application_url = "https://measuring-darkness-gui-generation.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "quickstart-3d7b636b.myshopify.com"
+include_config_on_deploy = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = ""
+
+[auth]
+redirect_urls = [
+  "https://measuring-darkness-gui-generation.trycloudflare.com/auth/callback",
+  "https://measuring-darkness-gui-generation.trycloudflare.com/auth/shopify/callback",
+  "https://measuring-darkness-gui-generation.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-04"
+
+[pos]
+embedded = false
