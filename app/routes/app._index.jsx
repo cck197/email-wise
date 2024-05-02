@@ -1,6 +1,6 @@
 import { json } from "@remix-run/node";
 import { useLoaderData, Link, useNavigate } from "@remix-run/react";
-import { authenticate } from "../shopify.server";
+import { authenticate } from "/app/shopify.server";
 import {
   Card,
   EmptyState,
@@ -14,7 +14,7 @@ import {
 } from "@shopify/polaris";
 
 import { AlertDiamondIcon, ImageIcon } from "@shopify/polaris-icons";
-import { getEmailGenerators } from "../models/EmailGenerator.server";
+import { getEmailGenerators } from "/app/models/EmailGenerator.server";
 
 export async function loader({ request }) {
   const { admin, session } = await authenticate.admin(request);
@@ -93,8 +93,8 @@ const EmailGeneratorTableRow = ({ generator }) => (
         truncate(generator.productTitle)
       )}
     </IndexTable.Cell>
-    <IndexTable.Cell>{generator.emailProvider}</IndexTable.Cell>
-    <IndexTable.Cell>{generator.llmProvider}</IndexTable.Cell>
+    <IndexTable.Cell>{generator.llmProvider.name}</IndexTable.Cell>
+    <IndexTable.Cell>{generator.emailProvider.name}</IndexTable.Cell>
     <IndexTable.Cell>
       {new Date(generator.createdAt).toDateString()}
     </IndexTable.Cell>

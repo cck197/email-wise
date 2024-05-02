@@ -46,7 +46,7 @@ model EmailGenerator {
   emailProviderId  Int?
   emailProvider    EmailProvider? @relation(fields: [emailProviderId], references: [id])
   llmProviderId    Int?
-  LLMProvider      LLMProvider?   @relation(fields: [llmProviderId], references: [id])
+  llmProvider      LLMProvider?   @relation(fields: [llmProviderId], references: [id])
   emailPrivateKey  String?
   llmPrivateKey    String?
   createdAt        DateTime       @default(now())

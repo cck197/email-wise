@@ -23,13 +23,13 @@ import {
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 
-import db from "../db.server";
+import db from "/app/db.server";
 import {
   getEmailGenerator,
   validateEmailGenerator,
   getEmailProviders,
   getLLMProviders,
-} from "../models/EmailGenerator.server";
+} from "/app/models/EmailGenerator.server";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);

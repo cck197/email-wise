@@ -1,13 +1,7 @@
-//import invariant from "tiny-invariant";
-import db from "../db.server";
+import db from "#app/db.server";
 
 export async function getEmailGenerator(id, graphql) {
-  const generator = await db.emailGenerator.findFirst({ where: { id } });
-
-  if (!generator) {
-    return null;
-  }
-
+  const generator = await db.emailGenerator.findFirstOrThrow({ where: { id } });
   return supplementGenerator(generator, graphql);
 }
 
@@ -16,8 +10,6 @@ export async function getSelectValues(tableName) {
   const rows = await table.findMany({
     orderBy: { name: "asc" },
   });
-
-  if (rows.length === 0) return [];
 
   return rows.map((row) => ({
     value: row.id.toString(),
@@ -33,22 +25,53 @@ export async function getEmailProviders() {
   return getSelectValues("emailProvider");
 }
 
-async function getLabel(tableName, id) {
-  const row = await db[tableName].findUnique({ where: { id } });
-  return row.name;
-}
-
 export async function getEmailGenerators(shop, graphql) {
-  const generators = await db.emailGenerator.findMany({
-    where: { shop },
-    orderBy: { id: "desc" },
-  });
-
-  if (generators.length === 0) return [];
+  const generators = await getEmailGeneratorsByShop(shop);
 
   return Promise.all(
     generators.map((generator) => supplementGenerator(generator, graphql)),
   );
+}
+
+export async function getEmailGeneratorsByShop(shop) {
+  return await db.emailGenerator.findMany({
+    where: {
+      shop: shop,
+    },
+    orderBy: { id: "desc" },
+    include: {
+      emailProvider: {
+        select: {
+          name: true,
+        },
+      },
+      llmProvider: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getEmailGeneratorById(id) {
+  return await db.emailGenerator.findFirstOrThrow({
+    where: {
+      id: id,
+    },
+    include: {
+      emailProvider: {
+        select: {
+          name: true,
+        },
+      },
+      llmProvider: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
 }
 
 async function supplementGenerator(generator, graphql) {
@@ -83,8 +106,6 @@ async function supplementGenerator(generator, graphql) {
     productTitle: product?.title,
     productImage: product?.images?.nodes[0]?.url,
     productAlt: product?.images?.nodes[0]?.altText,
-    emailProvider: await getLabel("emailProvider", generator.emailProviderId),
-    llmProvider: await getLabel("lLMProvider", generator.llmProviderId),
   };
 }
 

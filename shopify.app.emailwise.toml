@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise"
 handle = "emailwise-2"
-application_url = "https://myanmar-managing-once-symptoms.trycloudflare.com"
+application_url = "https://health-full-benjamin-poetry.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://myanmar-managing-once-symptoms.trycloudflare.com/auth/callback",
-  "https://myanmar-managing-once-symptoms.trycloudflare.com/auth/shopify/callback",
-  "https://myanmar-managing-once-symptoms.trycloudflare.com/api/auth/callback"
+  "https://health-full-benjamin-poetry.trycloudflare.com/auth/callback",
+  "https://health-full-benjamin-poetry.trycloudflare.com/auth/shopify/callback",
+  "https://health-full-benjamin-poetry.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
