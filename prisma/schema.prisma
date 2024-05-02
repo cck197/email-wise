@@ -27,30 +27,19 @@ model Session {
 model EmailProvider {
   id             Int              @id @default(autoincrement())
   name           String
-  privateKeys    PrivateKey[]
   EmailGenerator EmailGenerator[]
 }
 
 model LLMProvider {
   id             Int              @id @default(autoincrement())
   name           String
-  privateKeys    PrivateKey[]
   EmailGenerator EmailGenerator[]
-}
-
-model PrivateKey {
-  id              Int            @id @default(autoincrement())
-  shop            String
-  key             String
-  EmailProvider   EmailProvider? @relation(fields: [emailProviderId], references: [id])
-  emailProviderId Int?
-  LLMProvider     LLMProvider?   @relation(fields: [lLMProviderId], references: [id])
-  lLMProviderId   Int?
 }
 
 model EmailGenerator {
   id               Int            @id @default(autoincrement())
-  title            String
+  shop             String
+  name             String
   productId        String
   productHandle    String
   productVariantId String
@@ -58,5 +47,7 @@ model EmailGenerator {
   emailProvider    EmailProvider? @relation(fields: [emailProviderId], references: [id])
   llmProviderId    Int?
   LLMProvider      LLMProvider?   @relation(fields: [llmProviderId], references: [id])
+  emailPrivateKey  String?
+  llmPrivateKey    String?
   createdAt        DateTime       @default(now())
 }

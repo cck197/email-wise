@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "2f27e2979def2c34cdcbb5f3f7fe626c"
+client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise"
 handle = "emailwise-2"
-application_url = "https://measuring-darkness-gui-generation.trycloudflare.com"
+application_url = "https://myanmar-managing-once-symptoms.trycloudflare.com"
 embedded = true
 
 [build]
@@ -13,13 +13,13 @@ include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = ""
+scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://measuring-darkness-gui-generation.trycloudflare.com/auth/callback",
-  "https://measuring-darkness-gui-generation.trycloudflare.com/auth/shopify/callback",
-  "https://measuring-darkness-gui-generation.trycloudflare.com/api/auth/callback"
+  "https://myanmar-managing-once-symptoms.trycloudflare.com/auth/callback",
+  "https://myanmar-managing-once-symptoms.trycloudflare.com/auth/shopify/callback",
+  "https://myanmar-managing-once-symptoms.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
