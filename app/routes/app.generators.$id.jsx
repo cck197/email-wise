@@ -29,6 +29,7 @@ import {
   validateEmailGenerator,
   getEmailProviders,
   getLLMProviders,
+  upsertEmailGenerator,
 } from "/app/models/EmailGenerator.server";
 
 export async function loader({ request, params }) {
@@ -41,6 +42,7 @@ export async function loader({ request, params }) {
   data.generator =
     params.id === "new"
       ? {
+          id: null,
           emailProviderId: data.emailProviders[0].value,
           llmProviderId: data.llmProviders[0].value,
           name: "",
@@ -89,14 +91,7 @@ export async function action({ request, params }) {
     return json({ errors }, { status: 422 });
   }
 
-  const generator =
-    params.id === "new"
-      ? await db.emailGenerator.create({ data })
-      : await db.emailGenerator.update({
-          where: { id: Number(params.id) },
-          data,
-        });
-
+  const generator = await upsertEmailGenerator(params.id, data);
   return redirect(`/app/generators/${generator.id}`);
 }
 

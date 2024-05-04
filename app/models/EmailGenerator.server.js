@@ -1,4 +1,4 @@
-import db from "#app/db.server";
+import db from "/app/db.server";
 
 export async function getEmailGenerator(id, graphql) {
   const generator = await db.emailGenerator.findFirstOrThrow({ where: { id } });
@@ -52,6 +52,34 @@ export async function getEmailGeneratorsByShop(shop) {
       },
     },
   });
+}
+
+async function sendWebhook(payload) {
+  const webhookUrl = process.env.WEBHOOK_URL;
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return response.ok; // Returns true if response status is 200-299
+  } catch (error) {
+    console.error("Failed to send webhook", error);
+    return false;
+  }
+}
+
+export async function upsertEmailGenerator(id, data) {
+  const result =
+    id === "new"
+      ? await db.emailGenerator.create({ data })
+      : await db.emailGenerator.update({
+          where: { id: Number(id) },
+          data,
+        });
+  const payload = { id, data: result };
+  await sendWebhook(payload);
+  return result;
 }
 
 export async function getEmailGeneratorById(id) {

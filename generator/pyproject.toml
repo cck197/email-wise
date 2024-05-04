@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "generator"
+version = "0.1.0"
+description = ""
+authors = ["Christopher Kelly <cck197@cck197.net>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+flask = "^3.0.3"
+prisma = "^0.13.1"
+pyright = "^1.1.361"
+python-dotenv = "^1.0.1"
+quart = "^0.19.5"
+
+[tool.poetry.scripts]
+start = "api:run"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

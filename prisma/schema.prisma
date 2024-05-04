@@ -3,14 +3,21 @@
 
 generator client {
   provider = "prisma-client-js"
+  // provider  = "prisma-client-py"
+  // interface = "asyncio"
 }
 
 // Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
 // enough when changing adapters.
 // See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+// datasource db {
+//   provider = "sqlite"
+//   url      = "file:dev.sqlite"
+// }
+
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
@@ -49,5 +56,14 @@ model EmailGenerator {
   llmProvider      LLMProvider?   @relation(fields: [llmProviderId], references: [id])
   emailPrivateKey  String?
   llmPrivateKey    String?
+  createdAt        DateTime       @default(now())
+  Email            Email[]
+}
+
+model Email {
+  id               Int            @id @default(autoincrement())
+  emailGeneratorId Int
+  emailGenerator   EmailGenerator @relation(fields: [emailGeneratorId], references: [id])
+  email            String
   createdAt        DateTime       @default(now())
 }
