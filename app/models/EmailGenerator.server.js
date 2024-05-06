@@ -17,6 +17,22 @@ export async function getSelectValues(tableName) {
   }));
 }
 
+export async function getEmail(shop, emailGeneratorId) {
+  let email;
+  try {
+    email = await db.email.findFirstOrThrow({
+      where: {
+        shop: shop,
+        emailGeneratorId: emailGeneratorId,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    email = null;
+  }
+  return email;
+}
+
 export async function getLLMProviders() {
   return getSelectValues("lLMProvider");
 }

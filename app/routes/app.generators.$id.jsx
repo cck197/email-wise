@@ -20,6 +20,8 @@ import {
   BlockStack,
   PageActions,
   Select,
+  EmptyState,
+  Toast,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 
@@ -30,10 +32,12 @@ import {
   getEmailProviders,
   getLLMProviders,
   upsertEmailGenerator,
+  getEmail,
 } from "/app/models/EmailGenerator.server";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
+
   const data = {
     emailProviders: await getEmailProviders(),
     llmProviders: await getLLMProviders(),
@@ -48,6 +52,10 @@ export async function loader({ request, params }) {
           name: "",
         }
       : await getEmailGenerator(Number(params.id), admin.graphql);
+
+  data.email = data.generator.id
+    ? await getEmail(admin.shop, data.generator.id)
+    : null;
 
   return json(data);
 }
@@ -98,7 +106,7 @@ export async function action({ request, params }) {
 export default function EmailGeneratorForm() {
   const errors = useActionData()?.errors || {};
 
-  const { emailProviders, llmProviders, generator } = useLoaderData();
+  const { emailProviders, llmProviders, generator, email } = useLoaderData();
   const [formState, setFormState] = useState(generator);
   const [cleanFormState, setCleanFormState] = useState(generator);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
@@ -279,6 +287,40 @@ export default function EmailGeneratorForm() {
                     ) : null}
                   </BlockStack>
                 )}
+              </BlockStack>
+            </Card>
+          </BlockStack>
+        </Layout.Section>
+        <Layout.Section variant="oneThird">
+          <BlockStack gap="500">
+            <Card>
+              <BlockStack gap="500">
+                <Text as={"h2"} variant="headingLg">
+                  Generated Email
+                </Text>
+                {email ? (
+                  <TextField
+                    value={email.text.trim()}
+                    readOnly
+                    multiline={true}
+                  />
+                ) : (
+                  <EmptyState image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
+                    Your generated will appear here after you save
+                  </EmptyState>
+                )}
+                <BlockStack gap="300">
+                  <Button disabled={!email?.id} variant="primary">
+                    Generate new email
+                  </Button>
+                  <Button
+                    disabled={!email?.id}
+                    url={`/TODO/${email?.id}`}
+                    target="_blank"
+                  >
+                    Create email template with provider
+                  </Button>
+                </BlockStack>
               </BlockStack>
             </Card>
           </BlockStack>
