@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Christopher Kelly <cck197@cck197.net>"]
 readme = "README.md"
+packages = [{ include = "generator" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -31,6 +32,7 @@ start = "api:run"
 
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "^4.1.8"
+
 
 [build-system]
 requires = ["poetry-core"]

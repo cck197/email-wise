@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+
 import { json, redirect } from "@remix-run/node";
 import {
   useActionData,
@@ -31,7 +33,6 @@ import {
   getEmailProviders,
   getLLMProviders,
   upsertEmailGenerator,
-  getEmail,
 } from "/app/models/EmailGenerator.server";
 
 export async function loader({ request, params }) {
@@ -52,15 +53,11 @@ export async function loader({ request, params }) {
         }
       : await getEmailGenerator(Number(params.id), admin.graphql);
 
-  data.email = data.generator.id
-    ? await getEmail(admin.shop, data.generator.id)
-    : null;
-
   return json(data);
 }
 
 export async function action({ request, params }) {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const { shop } = session;
 
   const formData = Object.fromEntries(await request.formData());
@@ -98,14 +95,14 @@ export async function action({ request, params }) {
     return json({ errors }, { status: 422 });
   }
 
-  const generator = await upsertEmailGenerator(params.id, data);
+  const generator = await upsertEmailGenerator(params.id, data, admin.graphql);
   return redirect(`/app/generators/${generator.id}`);
 }
 
 export default function EmailGeneratorForm() {
   const errors = useActionData()?.errors || {};
 
-  const { emailProviders, llmProviders, generator, email } = useLoaderData();
+  const { emailProviders, llmProviders, generator } = useLoaderData();
   const [formState, setFormState] = useState(generator);
   const [cleanFormState, setCleanFormState] = useState(generator);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
@@ -115,6 +112,16 @@ export default function EmailGeneratorForm() {
     nav.state === "submitting" && nav.formData?.get("action") !== "delete";
   const isDeleting =
     nav.state === "submitting" && nav.formData?.get("action") === "delete";
+
+  const { isSuccess, data } = useQuery({
+    queryKey: ["emailData"],
+    queryFn: () =>
+      fetch(`/app/api/email/${generator.shop}/${generator.id}`).then((res) =>
+        res.json(),
+      ),
+  });
+
+  console.log(`isSuccess: ${isSuccess}, data: ${data}`);
 
   const handleProviderChange = useCallback(
     (value, setStateFunction, stateKey) => {
@@ -297,9 +304,9 @@ export default function EmailGeneratorForm() {
                 <Text as={"h2"} variant="headingLg">
                   Generated Email
                 </Text>
-                {email ? (
+                {isSuccess ? (
                   <TextField
-                    value={email.text.trim()}
+                    value={data?.text.trim()}
                     readOnly
                     multiline={true}
                   />
@@ -309,12 +316,12 @@ export default function EmailGeneratorForm() {
                   </EmptyState>
                 )}
                 <BlockStack gap="300">
-                  <Button disabled={!email?.id} variant="primary">
+                  <Button disabled={!data?.id} variant="primary">
                     Generate new email
                   </Button>
                   <Button
-                    disabled={!email?.id}
-                    url={`/TODO/${email?.id}`}
+                    disabled={!data?.id}
+                    url={`/TODO/${data?.id}`}
                     target="_blank"
                   >
                     Create email template with provider

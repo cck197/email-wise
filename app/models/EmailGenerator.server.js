@@ -72,20 +72,26 @@ export async function getEmailGeneratorsByShop(shop) {
 
 async function sendWebhook(payload) {
   const webhookUrl = process.env.WEBHOOK_URL;
-  try {
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+  fetch(webhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+    .then((response) => {
+      console.log("Webhook sent successfully", response.ok);
+    })
+    .catch((error) => {
+      console.error("Failed to send webhook", error);
     });
-    return response.ok; // Returns true if response status is 200-299
-  } catch (error) {
-    console.error("Failed to send webhook", error);
-    return false;
-  }
 }
 
-export async function upsertEmailGenerator(id, data) {
+export async function generateEmail(id, generator, graphql) {
+  const product = await supplementGenerator(generator, graphql);
+  const payload = { id, data: { ...product, generator } };
+  await sendWebhook(payload);
+}
+
+export async function upsertEmailGenerator(id, data, graphql) {
   const result =
     id === "new"
       ? await db.emailGenerator.create({ data })
@@ -93,8 +99,7 @@ export async function upsertEmailGenerator(id, data) {
           where: { id: Number(id) },
           data,
         });
-  const payload = { id, data: result };
-  await sendWebhook(payload);
+  await generateEmail(id, result, graphql);
   return result;
 }
 
@@ -130,6 +135,7 @@ async function supplementGenerator(generator, graphql) {
               url
             }
           }
+          description
         }
       }
     `,
@@ -150,6 +156,7 @@ async function supplementGenerator(generator, graphql) {
     productTitle: product?.title,
     productImage: product?.images?.nodes[0]?.url,
     productAlt: product?.images?.nodes[0]?.altText,
+    productDescription: product?.description,
   };
 }
 
