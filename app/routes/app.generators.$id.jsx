@@ -21,7 +21,6 @@ import {
   PageActions,
   Select,
   EmptyState,
-  Toast,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 

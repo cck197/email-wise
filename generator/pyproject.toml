@@ -24,6 +24,7 @@ gpt4all = "^2.6.0"
 klaviyo-api = "^7.0.0"
 beautifulsoup4 = "^4.12.3"
 python-dateutil = "^2.9.0.post0"
+langchain-groq = "^0.1.3"
 
 [tool.poetry.scripts]
 start = "api:run"

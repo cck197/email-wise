@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise"
 handle = "emailwise-2"
-application_url = "https://damage-stamp-switch-polls.trycloudflare.com"
+application_url = "https://configurations-argument-smith-telephone.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://damage-stamp-switch-polls.trycloudflare.com/auth/callback",
-  "https://damage-stamp-switch-polls.trycloudflare.com/auth/shopify/callback",
-  "https://damage-stamp-switch-polls.trycloudflare.com/api/auth/callback"
+  "https://configurations-argument-smith-telephone.trycloudflare.com/auth/callback",
+  "https://configurations-argument-smith-telephone.trycloudflare.com/auth/shopify/callback",
+  "https://configurations-argument-smith-telephone.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
