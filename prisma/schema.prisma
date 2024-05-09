@@ -2,9 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  // provider  = "prisma-client-py"
-  // interface = "asyncio"
+  // provider = "prisma-client-js"
+  provider  = "prisma-client-py"
+  interface = "asyncio"
 }
 
 // Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
@@ -32,31 +32,25 @@ model Session {
 }
 
 model EmailProvider {
-  id             Int              @id @default(autoincrement())
-  name           String
-  EmailGenerator EmailGenerator[]
+  id       Int        @id @default(autoincrement())
+  name     String
+  settings Settings[]
 }
 
 model LLMProvider {
-  id             Int              @id @default(autoincrement())
-  name           String
-  EmailGenerator EmailGenerator[]
+  id       Int        @id @default(autoincrement())
+  name     String
+  settings Settings[]
 }
 
 model EmailGenerator {
-  id               Int            @id @default(autoincrement())
+  id               Int      @id @default(autoincrement())
   shop             String
-  name             String
   productId        String
+  productTitle     String
   productHandle    String
   productVariantId String
-  emailProviderId  Int?
-  emailProvider    EmailProvider? @relation(fields: [emailProviderId], references: [id])
-  llmProviderId    Int?
-  llmProvider      LLMProvider?   @relation(fields: [llmProviderId], references: [id])
-  emailPrivateKey  String?
-  llmPrivateKey    String?
-  createdAt        DateTime       @default(now())
+  createdAt        DateTime @default(now())
   Email            Email[]
 }
 
@@ -69,4 +63,16 @@ model Email {
   createdAt        DateTime        @default(now())
   emailGeneratorId Int?
   emailGenerator   EmailGenerator? @relation(fields: [emailGeneratorId], references: [id])
+}
+
+model Settings {
+  id              Int            @id @default(autoincrement())
+  shop            String
+  emailProviderId Int
+  emailProvider   EmailProvider? @relation(fields: [emailProviderId], references: [id])
+  emailKey        String
+  lLMProviderId   Int
+  lLMProvider     LLMProvider?   @relation(fields: [lLMProviderId], references: [id])
+  lLMKey          String
+  createdAt       DateTime       @default(now())
 }

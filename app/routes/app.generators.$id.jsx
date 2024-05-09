@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { json, redirect } from "@remix-run/node";
@@ -21,7 +21,6 @@ import {
   Thumbnail,
   BlockStack,
   PageActions,
-  Select,
   EmptyState,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
@@ -30,26 +29,18 @@ import db from "/app/db.server";
 import {
   getEmailGenerator,
   validateEmailGenerator,
-  getEmailProviders,
-  getLLMProviders,
   upsertEmailGenerator,
 } from "/app/models/EmailGenerator.server";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
 
-  const data = {
-    emailProviders: await getEmailProviders(),
-    llmProviders: await getLLMProviders(),
-  };
+  const data = {};
 
   data.generator =
     params.id === "new"
       ? {
           id: null,
-          emailProviderId: data.emailProviders[0].value,
-          llmProviderId: data.llmProviders[0].value,
-          name: "",
         }
       : await getEmailGenerator(Number(params.id), admin.graphql);
 
@@ -61,27 +52,14 @@ export async function action({ request, params }) {
   const { shop } = session;
 
   const formData = Object.fromEntries(await request.formData());
-  const {
-    name,
-    productId,
-    productVariantId,
-    productHandle,
-    emailProviderId,
-    llmProviderId,
-    emailPrivateKey,
-    llmPrivateKey,
-  } = formData;
+  const { productId, productTitle, productVariantId, productHandle } = formData;
 
   const data = {
     shop,
-    name,
+    productTitle,
     productId,
     productVariantId,
     productHandle,
-    emailProviderId: parseInt(emailProviderId),
-    llmProviderId: parseInt(llmProviderId),
-    emailPrivateKey,
-    llmPrivateKey,
   };
 
   if (formData.action === "delete") {
@@ -102,7 +80,7 @@ export async function action({ request, params }) {
 export default function EmailGeneratorForm() {
   const errors = useActionData()?.errors || {};
 
-  const { emailProviders, llmProviders, generator } = useLoaderData();
+  const { generator } = useLoaderData();
   const [formState, setFormState] = useState(generator);
   const [cleanFormState, setCleanFormState] = useState(generator);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
@@ -121,23 +99,7 @@ export default function EmailGeneratorForm() {
       ),
   });
 
-  console.log(`isSuccess: ${isSuccess}, data: ${data}`);
-
-  const handleProviderChange = useCallback(
-    (value, setStateFunction, stateKey) => {
-      const parsedValue = parseInt(value, 10);
-      if (!isNaN(parsedValue)) {
-        setStateFunction((prevState) => ({
-          ...prevState,
-          [stateKey]: parsedValue,
-        }));
-      } else {
-        // Handle case where parsed value is NaN
-        console.error("Received NaN value for provider ID");
-      }
-    },
-    [],
-  );
+  console.log("generator", generator);
 
   async function selectProduct() {
     const products = await window.shopify.resourcePicker({
@@ -163,14 +125,10 @@ export default function EmailGeneratorForm() {
   const submit = useSubmit();
   function handleSave() {
     const data = {
-      name: formState.name,
+      productTitle: formState.productTitle || "",
       productId: formState.productId || "",
       productVariantId: formState.productVariantId || "",
       productHandle: formState.productHandle || "",
-      emailProviderId: formState.emailProviderId || emailProviders[0].value,
-      llmProviderId: formState.llmProviderId || llmProviders[0].value,
-      emailPrivateKey: formState.emailPrivateKey,
-      llmPrivateKey: formState.llmPrivateKey,
     };
 
     setCleanFormState({ ...formState });
@@ -181,83 +139,12 @@ export default function EmailGeneratorForm() {
     <Page>
       <ui-title-bar
         title={
-          generator.id ? "Edit Email Generator" : "Create new Email Generator"
+          generator.id ? "Edit Email Generator" : "Create New Email Generator"
         }
       ></ui-title-bar>
       <Layout>
         <Layout.Section>
           <BlockStack gap="500">
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Name
-                </Text>
-                <TextField
-                  id="name"
-                  helpText="Only store staff can see this name"
-                  label="name"
-                  labelHidden
-                  autoComplete="off"
-                  value={formState.name}
-                  onChange={(name) => setFormState({ ...formState, name })}
-                  error={errors.name}
-                />
-              </BlockStack>
-            </Card>
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Email Integration
-                </Text>
-                <Select
-                  label="Select your provider"
-                  options={emailProviders}
-                  onChange={(emailProviderId) =>
-                    setFormState({ ...formState, emailProviderId })
-                  }
-                  value={formState.emailProviderId.toString()}
-                  error={errors.emailProviderId}
-                />
-                <TextField
-                  id="emailPrivateKey"
-                  helpText=""
-                  label="Private API key"
-                  autoComplete="off"
-                  value={formState.emailPrivateKey}
-                  onChange={(emailPrivateKey) =>
-                    setFormState({ ...formState, emailPrivateKey })
-                  }
-                  error={errors.emailPrivateKey}
-                />
-              </BlockStack>
-            </Card>
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  AI Integration
-                </Text>
-                <Select
-                  label="Select your provider"
-                  options={llmProviders}
-                  onChange={(value) =>
-                    handleProviderChange(value, setFormState, "llmProviderId")
-                  }
-                  value={formState.llmProviderId.toString()}
-                  error={errors.llmProviderId}
-                />
-                <TextField
-                  id="llmKey"
-                  helpText=""
-                  label="Private API key"
-                  autoComplete="off"
-                  value={formState.llmPrivateKey}
-                  onChange={(llmPrivateKey) =>
-                    setFormState({ ...formState, llmPrivateKey })
-                  }
-                  error={errors.llmPrivateKey}
-                />
-              </BlockStack>
-            </Card>
             <Card>
               <BlockStack gap="500">
                 <InlineStack align="space-between">
@@ -304,17 +191,19 @@ export default function EmailGeneratorForm() {
                 <Text as={"h2"} variant="headingLg">
                   Generated Email
                 </Text>
-                {isSuccess ? (
+                {isSuccess && data.text ? (
                   <TextField
-                    value={data?.text.trim()}
+                    value={data.text?.trim()}
+                    autoComplete="off"
                     readOnly
-                    multiline={true}
+                    multiline="true"
                   />
                 ) : (
                   <EmptyState image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
-                    Your generated will appear here after you save
+                    Your generated email will appear here
                   </EmptyState>
                 )}
+                {/* }
                 <BlockStack gap="300">
                   <Button disabled={!data?.id} variant="primary">
                     Generate new email
@@ -327,6 +216,7 @@ export default function EmailGeneratorForm() {
                     Create email template with provider
                   </Button>
                 </BlockStack>
+                  { */}
               </BlockStack>
             </Card>
           </BlockStack>

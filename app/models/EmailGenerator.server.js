@@ -18,19 +18,13 @@ export async function getSelectValues(tableName) {
 }
 
 export async function getEmail(shop, emailGeneratorId) {
-  let email;
-  try {
-    email = await db.email.findFirstOrThrow({
-      where: {
-        shop: shop,
-        emailGeneratorId: emailGeneratorId,
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  } catch (error) {
-    email = null;
-  }
-  return email;
+  return await db.email.findFirst({
+    where: {
+      shop: shop,
+      emailGeneratorId: emailGeneratorId,
+    },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export async function getLLMProviders() {
@@ -39,6 +33,14 @@ export async function getLLMProviders() {
 
 export async function getEmailProviders() {
   return getSelectValues("emailProvider");
+}
+
+export async function getSettings(shop) {
+  return await db.settings.findFirst({
+    where: {
+      shop: shop,
+    },
+  });
 }
 
 export async function getEmailGenerators(shop, graphql) {
@@ -55,18 +57,6 @@ export async function getEmailGeneratorsByShop(shop) {
       shop: shop,
     },
     orderBy: { id: "desc" },
-    include: {
-      emailProvider: {
-        select: {
-          name: true,
-        },
-      },
-      llmProvider: {
-        select: {
-          name: true,
-        },
-      },
-    },
   });
 }
 
@@ -103,22 +93,22 @@ export async function upsertEmailGenerator(id, data, graphql) {
   return result;
 }
 
+export async function saveSettings(data) {
+  const settings = await getSettings(data.shop);
+  return settings
+    ? await db.settings.update({
+        where: { id: settings.id },
+        data,
+      })
+    : await db.settings.create({
+        data,
+      });
+}
+
 export async function getEmailGeneratorById(id) {
   return await db.emailGenerator.findFirstOrThrow({
     where: {
       id: id,
-    },
-    include: {
-      emailProvider: {
-        select: {
-          name: true,
-        },
-      },
-      llmProvider: {
-        select: {
-          name: true,
-        },
-      },
     },
   });
 }
@@ -163,28 +153,32 @@ async function supplementGenerator(generator, graphql) {
 export function validateEmailGenerator(data) {
   const errors = {};
 
-  if (!data.name) {
-    errors.name = "Name is required";
-  }
-
   if (!data.productId) {
     errors.productId = "Product is required";
   }
 
+  if (Object.keys(errors).length) {
+    return errors;
+  }
+}
+
+export function validateSettings(data) {
+  const errors = {};
+
   if (!data.emailProviderId) {
-    errors.emailProviderId = "Email Provider is required";
+    errors.emailProviderId = "Email provider is required";
   }
 
-  if (!data.llmProviderId) {
-    errors.llmProviderId = "AI Provider is required";
+  if (!data.emailKey) {
+    errors.emailKey = "Email private key is required";
   }
 
-  if (!data.emailPrivateKey) {
-    errors.emailPrivateKey = "Private API key is required";
+  if (!data.lLMProviderId) {
+    errors.lLMProviderId = "AI provider is required";
   }
 
-  if (!data.llmPrivateKey) {
-    errors.llmPrivateKey = "Private API key is required";
+  if (!data.lLMKey) {
+    errors.lLMKey = "AI private key is required";
   }
 
   if (Object.keys(errors).length) {

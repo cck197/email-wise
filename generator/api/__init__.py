@@ -15,7 +15,7 @@ async def webhook():
     db = await get_db()
     data = await request.get_json()
     print(f"{data=}")
-    email_generator = await get_email_generator(db, int(data["id"]))
+    email_generator = await get_email_generator(db, int(data["data"]["id"]))
     await generate_email(db, email_generator, data["data"]["productDescription"])
     return {"status": "success"}
 

@@ -14,29 +14,21 @@ import {
 } from "@shopify/polaris";
 
 import { AlertDiamondIcon, ImageIcon } from "@shopify/polaris-icons";
-import { getEmailGenerators } from "/app/models/EmailGenerator.server";
+import {
+  getEmailGenerators,
+  getSettings,
+} from "/app/models/EmailGenerator.server";
 
 export async function loader({ request }) {
   const { admin, session } = await authenticate.admin(request);
   const generators = await getEmailGenerators(session.shop, admin.graphql);
+  const settings = await getSettings(session.shop);
 
   return json({
     generators,
+    settings,
   });
 }
-
-const EmptyGeneratorState = ({ onAction }) => (
-  <EmptyState
-    heading="Generate sales emails for your product"
-    action={{
-      content: "Create Email Generator",
-      onAction,
-    }}
-    image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-  >
-    <p>Use AI to generate more revenue per email.</p>
-  </EmptyState>
-);
 
 function truncate(str, { length = 25 } = {}) {
   if (!str) return "";
@@ -53,10 +45,7 @@ const EmailGeneratorTable = ({ generators }) => (
     itemCount={generators.length}
     headings={[
       { title: "Thumbnail", hidden: true },
-      { title: "Title" },
       { title: "Product" },
-      { title: "Email Provider" },
-      { title: "AI Provider" },
       { title: "Date created" },
     ]}
     selectable={false}
@@ -77,9 +66,6 @@ const EmailGeneratorTableRow = ({ generator }) => (
       />
     </IndexTable.Cell>
     <IndexTable.Cell>
-      <Link to={`generators/${generator.id}`}>{truncate(generator.name)}</Link>
-    </IndexTable.Cell>
-    <IndexTable.Cell>
       {generator.productDeleted ? (
         <InlineStack align="start" gap="200">
           <span style={{ width: "20px" }}>
@@ -90,20 +76,52 @@ const EmailGeneratorTableRow = ({ generator }) => (
           </Text>
         </InlineStack>
       ) : (
-        truncate(generator.productTitle)
+        <Link to={`generators/${generator.id}`}>
+          {truncate(generator.productTitle)}
+        </Link>
       )}
     </IndexTable.Cell>
-    <IndexTable.Cell>{generator.llmProvider.name}</IndexTable.Cell>
-    <IndexTable.Cell>{generator.emailProvider.name}</IndexTable.Cell>
     <IndexTable.Cell>
       {new Date(generator.createdAt).toDateString()}
     </IndexTable.Cell>
   </IndexTable.Row>
 );
 
+const EmptyGeneratorState = ({ onAction, label }) => (
+  <EmptyState
+    heading="Generate sales emails for your product"
+    action={{
+      content: label,
+      onAction,
+    }}
+    image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+  >
+    <p>Use AI to generate more revenue per email.</p>
+  </EmptyState>
+);
+
 export default function Index() {
-  const { generators } = useLoaderData();
+  const { generators, settings } = useLoaderData();
   const navigate = useNavigate();
+
+  if (!settings) {
+    return (
+      <Page>
+        <Layout>
+          <Layout.Section>
+            <Card padding="0">
+              <EmptyGeneratorState
+                onAction={() => navigate("/app/settings")}
+                label={
+                  "Click here to check a couple of settings to get started"
+                }
+              />
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    );
+  }
 
   return (
     <Page>
@@ -121,6 +139,7 @@ export default function Index() {
             {generators.length === 0 ? (
               <EmptyGeneratorState
                 onAction={() => navigate("generators/new")}
+                label={"Create Email Generator"}
               />
             ) : (
               <EmailGeneratorTable generators={generators} />

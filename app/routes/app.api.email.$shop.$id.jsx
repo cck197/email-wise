@@ -8,6 +8,5 @@ export async function loader({ params }) {
   if (!email) {
     return json({ error: "Email not found" }, { status: 404 });
   }
-  const data = { id: email.id, text: email.text };
-  return json(data);
+  return json(email);
 }

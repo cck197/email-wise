@@ -13,7 +13,7 @@ SYSTEM_PROMPT = os.environ.get(
 
 LLAMA3_AVOID_EXTRA_CRUFT = os.environ.get(
     "LLAMA3_AVOID_EXTRA_CRUFT",
-    """Avoid starting your responses with 'here is the'. Provide the answer and nothing else.""",
+    """Avoid starting your responses with 'Here is the' or 'Here's the'. Provide the answer and nothing else.""",
 )
 
 HUMAN = """
@@ -71,7 +71,7 @@ FINAL_PROMPT = os.environ.get(
     "FINAL_PROMPT",
     """
 Write a brief (no more than 500 words) sales email for the product delimited by triple backticks below
-use the same tone qualities for the output.
+use the same tone qualities for the output. Start the email with a catchy subject line.
 """,
 )
 
@@ -79,9 +79,7 @@ default_chat = ChatGroq(temperature=0, model_name=GROQ_MODEL_NAME)
 
 
 async def get_email_generator(db, id):
-    return await db.emailgenerator.find_first(
-        where={"id": id}, include={"emailProvider": True, "llmProvider": True}
-    )
+    return await db.emailgenerator.find_first(where={"id": id})
 
 
 async def save_email(db, name, html, text, email_generator):
