@@ -2,10 +2,13 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  // provider = "prisma-client-js"
-  provider  = "prisma-client-py"
-  interface = "asyncio"
+  provider = "prisma-client-js"
 }
+
+// generator client {
+//   provider  = "prisma-client-py"
+//   interface = "asyncio"
+// }
 
 // Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
 // enough when changing adapters.
@@ -57,9 +60,9 @@ model EmailGenerator {
 model Email {
   id               Int             @id @default(autoincrement())
   shop             String
-  name             String
-  html             String
-  text             String
+  name             String?
+  html             String?
+  text             String?
   createdAt        DateTime        @default(now())
   emailGeneratorId Int?
   emailGenerator   EmailGenerator? @relation(fields: [emailGeneratorId], references: [id])

@@ -22,6 +22,7 @@ import {
   BlockStack,
   PageActions,
   EmptyState,
+  Spinner,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 
@@ -99,8 +100,6 @@ export default function EmailGeneratorForm() {
       ),
   });
 
-  console.log("generator", generator);
-
   async function selectProduct() {
     const products = await window.shopify.resourcePicker({
       type: "product",
@@ -138,9 +137,7 @@ export default function EmailGeneratorForm() {
   return (
     <Page>
       <ui-title-bar
-        title={
-          generator.id ? "Edit Email Generator" : "Create New Email Generator"
-        }
+        title={generator.id ? "Edit Email" : "Create New Email"}
       ></ui-title-bar>
       <Layout>
         <Layout.Section>
@@ -182,25 +179,27 @@ export default function EmailGeneratorForm() {
                 )}
               </BlockStack>
             </Card>
-          </BlockStack>
-        </Layout.Section>
-        <Layout.Section variant="oneThird">
-          <BlockStack gap="500">
             <Card>
               <BlockStack gap="500">
                 <Text as={"h2"} variant="headingLg">
                   Generated Email
                 </Text>
-                {isSuccess && data.text ? (
+                {isSuccess && data.text && (
                   <TextField
-                    value={data.text?.trim()}
+                    value={data.text.trim()}
                     autoComplete="off"
                     readOnly
                     multiline="true"
                   />
-                ) : (
+                )}
+                {generator.id === null && (
                   <EmptyState image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
                     Your generated email will appear here
+                  </EmptyState>
+                )}
+                {isSuccess && generator.id && !data.text && (
+                  <EmptyState image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
+                    <Spinner accessibilityLabel="Generating..." size="large" />
                   </EmptyState>
                 )}
                 {/* }

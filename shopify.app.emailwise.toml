@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise"
 handle = "emailwise-2"
-application_url = "https://therapeutic-maternity-b-numeric.trycloudflare.com"
+application_url = "https://sprint-k-paraguay-tracy.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://therapeutic-maternity-b-numeric.trycloudflare.com/auth/callback",
-  "https://therapeutic-maternity-b-numeric.trycloudflare.com/auth/shopify/callback",
-  "https://therapeutic-maternity-b-numeric.trycloudflare.com/api/auth/callback"
+  "https://sprint-k-paraguay-tracy.trycloudflare.com/auth/callback",
+  "https://sprint-k-paraguay-tracy.trycloudflare.com/auth/shopify/callback",
+  "https://sprint-k-paraguay-tracy.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

@@ -83,14 +83,23 @@ async def get_email_generator(db, id):
 
 
 async def save_email(db, name, html, text, email_generator):
-    return await db.email.create(
-        {
-            "name": name,
-            "html": html,
-            "text": text,
+    email = await db.email.find_first(
+        where={
+            "name": None,
             "shop": email_generator.shop,
             "emailGeneratorId": email_generator.id,
         }
+    )
+    data = {
+        "name": name,
+        "html": html,
+        "text": text,
+    }
+    print(f"{email=} {data=}")
+    return await (
+        db.email.update(data=data, where={"id": email.id})
+        if email
+        else db.email.create(data=data)
     )
 
 

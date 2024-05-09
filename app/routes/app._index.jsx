@@ -125,12 +125,12 @@ export default function Index() {
 
   return (
     <Page>
-      <ui-title-bar title="Email Generators">
+      <ui-title-bar title="Emails">
         <button
           variant="primary"
           onClick={() => navigate("/app/generators/new")}
         >
-          Create Email Generator
+          Create Email
         </button>
       </ui-title-bar>
       <Layout>
@@ -139,7 +139,7 @@ export default function Index() {
             {generators.length === 0 ? (
               <EmptyGeneratorState
                 onAction={() => navigate("generators/new")}
-                label={"Create Email Generator"}
+                label={"Create Email"}
               />
             ) : (
               <EmailGeneratorTable generators={generators} />

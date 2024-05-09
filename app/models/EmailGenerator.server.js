@@ -17,16 +17,6 @@ export async function getSelectValues(tableName) {
   }));
 }
 
-export async function getEmail(shop, emailGeneratorId) {
-  return await db.email.findFirst({
-    where: {
-      shop: shop,
-      emailGeneratorId: emailGeneratorId,
-    },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
 export async function getLLMProviders() {
   return getSelectValues("lLMProvider");
 }
@@ -78,7 +68,22 @@ async function sendWebhook(payload) {
 export async function generateEmail(id, generator, graphql) {
   const product = await supplementGenerator(generator, graphql);
   const payload = { id, data: { ...product, generator } };
+  await db.email.create({
+    data: { shop: generator.shop, emailGeneratorId: generator.id },
+  });
   await sendWebhook(payload);
+}
+
+export async function getEmail(shop, id) {
+  return id
+    ? await db.email.findFirst({
+        where: {
+          emailGeneratorId: id,
+          shop: shop,
+        },
+        orderBy: { createdAt: "desc" },
+      })
+    : null;
 }
 
 export async function upsertEmailGenerator(id, data, graphql) {
