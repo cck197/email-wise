@@ -16,13 +16,6 @@ LLAMA3_AVOID_EXTRA_CRUFT = os.environ.get(
     """Avoid starting your responses with 'Here is the' or 'Here's the'. Provide the answer and nothing else.""",
 )
 
-HUMAN = """
-Previous conversation:
-{chat_history}
-
-New human question: {input}
-Response:"""
-
 STYLE_ATTRS = os.environ.get(
     "STYLE_ATTRS",
     """
