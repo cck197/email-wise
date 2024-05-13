@@ -5,6 +5,7 @@ import {
   Text,
   BlockStack,
   TextField,
+  Button,
 } from "@shopify/polaris";
 import { useState, useEffect, useRef } from "react";
 import { json } from "@remix-run/node";
@@ -13,34 +14,57 @@ import { useLoaderData } from "@remix-run/react";
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
-  return json({ url: process.env.SSE_URL });
+  return json({ baseUrl: process.env.SSE_URL });
 };
 
 export default function Index() {
-  const { url } = useLoaderData();
+  const { baseUrl } = useLoaderData();
   const [message, setMessage] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
   const eventSourceRef = useRef(null);
 
   useEffect(() => {
-    if (!url) return;
+    if (!isConnected || !inputValue.trim()) {
+      return;
+    }
 
-    const eventSource = new EventSource(url);
-    eventSourceRef.current = eventSource;
+    const fullUrl = `${baseUrl}/${encodeURIComponent(inputValue)}`;
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.event === "end") {
-        console.log("disconnecting...");
-        eventSource.close();
-      } else {
-        setMessage((prevMessage) => prevMessage + data.message);
-      }
-    };
+    if (!eventSourceRef.current) {
+      const eventSource = new EventSource(fullUrl);
+      eventSourceRef.current = eventSource;
 
-    return () => {
-      eventSource.close();
-    };
-  }, [url]);
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.event === "end") {
+          console.log("Disconnecting...");
+          eventSource.close();
+          setIsConnected(false);
+          eventSourceRef.current = null;
+        } else {
+          setMessage((prevMessage) => prevMessage + data.message);
+        }
+      };
+
+      return () => {
+        eventSource?.close();
+        eventSourceRef.current = null;
+      };
+    }
+  }, [isConnected, baseUrl, inputValue]);
+
+  const toggleConnection = () => {
+    if (isConnected) {
+      eventSourceRef.current?.close();
+      eventSourceRef.current = null;
+      setIsConnected(false);
+      setMessage("");
+    } else {
+      setMessage("");
+      setIsConnected(true);
+    }
+  };
 
   return (
     <Page>
@@ -53,6 +77,15 @@ export default function Index() {
                 <Text as={"h2"} variant="headingLg">
                   Streaming Output
                 </Text>
+                <TextField
+                  label="Event Source URL Path"
+                  value={inputValue}
+                  onChange={setInputValue}
+                  autoComplete="off"
+                />
+                <Button onClick={toggleConnection}>
+                  {isConnected ? "Disconnect from Stream" : "Connect to Stream"}
+                </Button>
                 <TextField
                   value={message}
                   multiline="true"

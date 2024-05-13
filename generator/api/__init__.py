@@ -56,10 +56,10 @@ def get_chain():
     return prompt | model | parser
 
 
-async def send_string_events():
+async def send_string_events(topic):
     chain = get_chain()
     try:
-        async for chunk in chain.astream({"topic": "parrot"}):
+        async for chunk in chain.astream({"topic": topic}):
             yield get_encoded_event({"message": chunk})
         yield get_encoded_event({"event": "end"})
     except asyncio.CancelledError:
@@ -67,13 +67,13 @@ async def send_string_events():
         print("client disconnected")
 
 
-@app.get("/sse")
-async def sse():
+@app.get("/sse/<topic>")
+async def sse(topic):
     if "text/event-stream" not in request.accept_mimetypes:
         abort(400)
 
     response = await make_response(
-        send_string_events(),
+        send_string_events(topic),
         {
             "Content-Type": "text/event-stream",
             "Cache-Control": "no-cache",
