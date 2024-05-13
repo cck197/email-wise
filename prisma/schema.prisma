@@ -47,14 +47,15 @@ model LLMProvider {
 }
 
 model EmailGenerator {
-  id               Int      @id @default(autoincrement())
-  shop             String
-  productId        String
-  productTitle     String
-  productHandle    String
-  productVariantId String
-  createdAt        DateTime @default(now())
-  Email            Email[]
+  id                 Int      @id @default(autoincrement())
+  shop               String
+  productId          String
+  productTitle       String
+  productHandle      String
+  productVariantId   String
+  productDescription String
+  createdAt          DateTime @default(now())
+  Email              Email[]
 }
 
 model Email {

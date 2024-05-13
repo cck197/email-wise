@@ -50,30 +50,6 @@ export async function getEmailGeneratorsByShop(shop) {
   });
 }
 
-async function sendWebhook(payload) {
-  const webhookUrl = process.env.WEBHOOK_URL;
-  fetch(webhookUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  })
-    .then((response) => {
-      console.log("Webhook sent successfully", response.ok);
-    })
-    .catch((error) => {
-      console.error("Failed to send webhook", error);
-    });
-}
-
-export async function generateEmail(id, generator, graphql) {
-  const product = await supplementGenerator(generator, graphql);
-  const payload = { id, data: { ...product, generator } };
-  await db.email.create({
-    data: { shop: generator.shop, emailGeneratorId: generator.id },
-  });
-  await sendWebhook(payload);
-}
-
 export async function getEmail(shop, id) {
   return id
     ? await db.email.findFirst({
@@ -87,15 +63,17 @@ export async function getEmail(shop, id) {
 }
 
 export async function upsertEmailGenerator(id, data, graphql) {
-  const result =
+  console.log("upsertEmailGenerator", id, data);
+  const product = await supplementGenerator(data, graphql);
+  data.productDescription = product.productDescription;
+  const generator =
     id === "new"
       ? await db.emailGenerator.create({ data })
       : await db.emailGenerator.update({
           where: { id: Number(id) },
           data,
         });
-  await generateEmail(id, result, graphql);
-  return result;
+  return generator;
 }
 
 export async function saveSettings(data) {

@@ -29,7 +29,7 @@ export default function Index() {
       return;
     }
 
-    const fullUrl = `${baseUrl}/${encodeURIComponent(inputValue)}`;
+    const fullUrl = `${baseUrl}/joke/${encodeURIComponent(inputValue)}`;
 
     if (!eventSourceRef.current) {
       const eventSource = new EventSource(fullUrl);
@@ -38,7 +38,7 @@ export default function Index() {
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.event === "end") {
-          console.log("Disconnecting...");
+          console.log("disconnecting...");
           eventSource.close();
           setIsConnected(false);
           eventSourceRef.current = null;

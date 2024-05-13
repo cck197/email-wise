@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useRef, useEffect } from "react";
 
 import { json, redirect } from "@remix-run/node";
 import {
@@ -23,6 +22,7 @@ import {
   PageActions,
   EmptyState,
   Spinner,
+  Box,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 
@@ -31,21 +31,23 @@ import {
   getEmailGenerator,
   validateEmailGenerator,
   upsertEmailGenerator,
+  getEmail,
 } from "/app/models/EmailGenerator.server";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
 
-  const data = {};
+  if (params.id === "new") {
+    return json({ generator: { id: null }, email: null });
+  }
 
-  data.generator =
-    params.id === "new"
-      ? {
-          id: null,
-        }
-      : await getEmailGenerator(Number(params.id), admin.graphql);
-
-  return json(data);
+  const id = Number(params.id);
+  const generator = await getEmailGenerator(id, admin.graphql);
+  return json({
+    generator,
+    email: await getEmail(generator.shop, id),
+    baseUrl: process.env.SSE_URL,
+  });
 }
 
 export async function action({ request, params }) {
@@ -81,9 +83,13 @@ export async function action({ request, params }) {
 export default function EmailGeneratorForm() {
   const errors = useActionData()?.errors || {};
 
-  const { generator } = useLoaderData();
+  const { generator, email, baseUrl } = useLoaderData();
   const [formState, setFormState] = useState(generator);
   const [cleanFormState, setCleanFormState] = useState(generator);
+  const [message, setMessage] = useState(email ? email.text : "");
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const eventSourceRef = useRef(null);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
 
   const nav = useNavigation();
@@ -91,14 +97,6 @@ export default function EmailGeneratorForm() {
     nav.state === "submitting" && nav.formData?.get("action") !== "delete";
   const isDeleting =
     nav.state === "submitting" && nav.formData?.get("action") === "delete";
-
-  const { isSuccess, data } = useQuery({
-    queryKey: ["emailData"],
-    queryFn: () =>
-      fetch(`/app/api/email/${generator.shop}/${generator.id}`).then((res) =>
-        res.json(),
-      ),
-  });
 
   async function selectProduct() {
     const products = await window.shopify.resourcePicker({
@@ -120,6 +118,50 @@ export default function EmailGeneratorForm() {
       });
     }
   }
+
+  useEffect(() => {
+    if (!isConnected) {
+      return;
+    }
+
+    const fullUrl = `${baseUrl}/email/${generator.id}`;
+
+    if (!eventSourceRef.current) {
+      const eventSource = new EventSource(fullUrl);
+      eventSourceRef.current = eventSource;
+      setIsLoading(true);
+
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.event === "end") {
+          console.log("disconnecting...");
+          eventSource.close();
+          setIsConnected(false);
+          eventSourceRef.current = null;
+        } else {
+          setIsLoading(false);
+          setMessage((prevMessage) => prevMessage + data.message);
+        }
+      };
+
+      return () => {
+        eventSource?.close();
+        eventSourceRef.current = null;
+      };
+    }
+  }, [isConnected, baseUrl, generator.id]);
+
+  const toggleConnection = () => {
+    if (isConnected) {
+      eventSourceRef.current?.close();
+      eventSourceRef.current = null;
+      setIsConnected(false);
+      setMessage("");
+    } else {
+      setMessage("");
+      setIsConnected(true);
+    }
+  };
 
   const submit = useSubmit();
   function handleSave() {
@@ -179,45 +221,32 @@ export default function EmailGeneratorForm() {
                 )}
               </BlockStack>
             </Card>
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Generated Email
-                </Text>
-                {isSuccess && data.text && (
-                  <TextField
-                    value={data.text.trim()}
-                    autoComplete="off"
-                    readOnly
-                    multiline="true"
-                  />
-                )}
-                {generator.id === null && (
-                  <EmptyState image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
-                    Your generated email will appear here
-                  </EmptyState>
-                )}
-                {isSuccess && generator.id && !data.text && (
-                  <EmptyState image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png">
-                    <Spinner accessibilityLabel="Generating..." size="large" />
-                  </EmptyState>
-                )}
-                {/* }
-                <BlockStack gap="300">
-                  <Button disabled={!data?.id} variant="primary">
-                    Generate new email
-                  </Button>
-                  <Button
-                    disabled={!data?.id}
-                    url={`/TODO/${data?.id}`}
-                    target="_blank"
-                  >
-                    Create email template with provider
-                  </Button>
+            {generator.id !== null && (
+              <Card>
+                <BlockStack gap="500">
+                  <Text as={"h2"} variant="headingLg">
+                    Generated Email
+                  </Text>
+                  <>
+                    <Button variant="primary" onClick={toggleConnection}>
+                      {isConnected ? "Stop generating" : "Generate"}
+                    </Button>
+                    <Box>
+                      {isLoading ? (
+                        <Spinner accessibilityLabel="Loading stream data" />
+                      ) : (
+                        <TextField
+                          value={message}
+                          multiline="true"
+                          autoComplete="off"
+                          readOnly={true}
+                        />
+                      )}
+                    </Box>
+                  </>
                 </BlockStack>
-                  { */}
-              </BlockStack>
-            </Card>
+              </Card>
+            )}
           </BlockStack>
         </Layout.Section>
         <Layout.Section>

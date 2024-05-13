@@ -76,23 +76,14 @@ async def get_email_generator(db, id):
 
 
 async def save_email(db, name, html, text, email_generator):
-    email = await db.email.find_first(
-        where={
-            "name": None,
+    return await db.email.create(
+        data={
             "shop": email_generator.shop,
             "emailGeneratorId": email_generator.id,
+            "name": name,
+            "html": html,
+            "text": text,
         }
-    )
-    data = {
-        "name": name,
-        "html": html,
-        "text": text,
-    }
-    print(f"{email=} {data=}")
-    return await (
-        db.email.update(data=data, where={"id": email.id})
-        if email
-        else db.email.create(data=data)
     )
 
 
@@ -121,25 +112,23 @@ def get_email_tone(email, chat=default_chat):
     return chain.invoke({"text": f"```{cleaned_email}```\n{STYLE_ATTRS}"})
 
 
-def get_product_copy(tone, prod_desc, chat=default_chat):
+# def get_product_copy(tone, prod_desc, chat=default_chat):
+#     (chain, input) = get_product_copy_chain(tone, prod_desc, chat)
+#     return chain.invoke(input)
+
+
+def get_product_copy_chain(tone, prod_desc, chat=default_chat):
     system = f"""{SYSTEM_PROMPT} {LLAMA3_AVOID_EXTRA_CRUFT}"""
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{text}")])
     chain = prompt | chat
-    return chain.invoke(
-        {"text": f"{FINAL_PROMPT}\n{COPY_INSTRUCTIONS}\n```{prod_desc}```\n{tone}"}
+
+    return (
+        chain,
+        {"text": f"{FINAL_PROMPT}\n{COPY_INSTRUCTIONS}\n```{prod_desc}```\n{tone}"},
     )
 
 
-async def generate_email(db, email_generator, prod_desc):
+async def generate_email(db, email_generator):
     sample_email = await get_sample_email(db, email_generator.shop)
     tone = get_email_tone(sample_email).content
-    copy = get_product_copy(tone, prod_desc).content
-    print(f"{copy=}")
-    name = copy.split("\n")[0]
-    await save_email(
-        db,
-        name,
-        copy,
-        copy,
-        email_generator,
-    )
+    return get_product_copy_chain(tone, email_generator.productDescription)

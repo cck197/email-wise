@@ -4,7 +4,6 @@ import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { authenticate } from "../shopify.server";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
@@ -14,24 +13,20 @@ export const loader = async ({ request }) => {
   return json({ apiKey: process.env.SHOPIFY_API_KEY || "" });
 };
 
-const queryClient = new QueryClient();
-
 export default function App() {
   const { apiKey } = useLoaderData();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppProvider isEmbeddedApp apiKey={apiKey}>
-        <ui-nav-menu>
-          <Link to="/app" rel="home">
-            Home
-          </Link>
-          <Link to="/app/settings">Settings</Link>
-          <Link to="/app/stream">Stream</Link>
-        </ui-nav-menu>
-        <Outlet />
-      </AppProvider>
-    </QueryClientProvider>
+    <AppProvider isEmbeddedApp apiKey={apiKey}>
+      <ui-nav-menu>
+        <Link to="/app" rel="home">
+          Home
+        </Link>
+        <Link to="/app/settings">Settings</Link>
+        {/*<Link to="/app/stream">Stream</Link>*/}
+      </ui-nav-menu>
+      <Outlet />
+    </AppProvider>
   );
 }
 
