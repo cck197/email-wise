@@ -20,9 +20,7 @@ import {
   Thumbnail,
   BlockStack,
   PageActions,
-  EmptyState,
   Spinner,
-  Box,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 
@@ -38,7 +36,7 @@ export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
 
   if (params.id === "new") {
-    return json({ generator: { id: null }, email: null });
+    return json({ generator: { id: null, salt: "" }, email: null });
   }
 
   const id = Number(params.id);
@@ -55,14 +53,10 @@ export async function action({ request, params }) {
   const { shop } = session;
 
   const formData = Object.fromEntries(await request.formData());
-  const { productId, productTitle, productVariantId, productHandle } = formData;
 
   const data = {
     shop,
-    productTitle,
-    productId,
-    productVariantId,
-    productHandle,
+    ...formData,
   };
 
   if (formData.action === "delete") {
@@ -170,6 +164,7 @@ export default function EmailGeneratorForm() {
       productId: formState.productId || "",
       productVariantId: formState.productVariantId || "",
       productHandle: formState.productHandle || "",
+      salt: formState.salt || "",
     };
 
     setCleanFormState({ ...formState });
@@ -221,7 +216,28 @@ export default function EmailGeneratorForm() {
                 )}
               </BlockStack>
             </Card>
-            {generator.id !== null && (
+            <Card>
+              <BlockStack gap="500">
+                <Text as={"h2"} variant="headingLg">
+                  Salt
+                </Text>
+                <TextField
+                  id="salt"
+                  helpText="Anything you want to add to the email"
+                  label="salt"
+                  labelHidden
+                  autoComplete="off"
+                  value={formState.salt}
+                  onChange={(salt) => setFormState({ ...formState, salt })}
+                  error={errors.salt}
+                />
+              </BlockStack>
+            </Card>
+          </BlockStack>
+        </Layout.Section>
+        <Layout.Section>
+          <BlockStack gap="500">
+            {generator.id !== null && !isDirty && (
               <Card>
                 <BlockStack gap="500">
                   <Text as={"h2"} variant="headingLg">
@@ -231,18 +247,16 @@ export default function EmailGeneratorForm() {
                     <Button variant="primary" onClick={toggleConnection}>
                       {isConnected ? "Stop generating" : "Generate"}
                     </Button>
-                    <Box>
-                      {isLoading ? (
-                        <Spinner accessibilityLabel="Loading stream data" />
-                      ) : (
-                        <TextField
-                          value={message}
-                          multiline="true"
-                          autoComplete="off"
-                          readOnly={true}
-                        />
-                      )}
-                    </Box>
+                    {isLoading ? (
+                      <Spinner accessibilityLabel="Loading stream data" />
+                    ) : (
+                      <TextField
+                        value={message}
+                        multiline="true"
+                        autoComplete="off"
+                        readOnly={true}
+                      />
+                    )}
                   </>
                 </BlockStack>
               </Card>

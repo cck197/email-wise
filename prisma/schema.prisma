@@ -54,6 +54,7 @@ model EmailGenerator {
   productHandle      String
   productVariantId   String
   productDescription String
+  salt               String?
   createdAt          DateTime @default(now())
   Email              Email[]
 }

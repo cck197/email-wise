@@ -73,6 +73,7 @@ export async function upsertEmailGenerator(id, data, graphql) {
           where: { id: Number(id) },
           data,
         });
+  db.email.deleteMany({ where: { emailGeneratorId: generator.id } });
   return generator;
 }
 

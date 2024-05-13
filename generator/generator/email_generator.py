@@ -55,6 +55,13 @@ work through each step below and include each in the output but without the name
 """,
 )
 
+SALT_INSTRUCTIONS = os.environ.get(
+    "SALT_INSTRUCTIONS",
+    """
+Use the salt below delimited by triple backticks to generate unique content for the product description.
+""",
+)
+
 TONE_INSTRUCTIONS = os.environ.get(
     "TONE_INSTRUCTIONS",
     "List the tone qualities for the text delimited by triple backticks below using the list.",
@@ -112,23 +119,22 @@ def get_email_tone(email, chat=default_chat):
     return chain.invoke({"text": f"```{cleaned_email}```\n{STYLE_ATTRS}"})
 
 
-# def get_product_copy(tone, prod_desc, chat=default_chat):
-#     (chain, input) = get_product_copy_chain(tone, prod_desc, chat)
-#     return chain.invoke(input)
-
-
-def get_product_copy_chain(tone, prod_desc, chat=default_chat):
+def get_product_copy_chain(tone, prod_desc, salt, chat=default_chat):
     system = f"""{SYSTEM_PROMPT} {LLAMA3_AVOID_EXTRA_CRUFT}"""
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{text}")])
     chain = prompt | chat
 
     return (
         chain,
-        {"text": f"{FINAL_PROMPT}\n{COPY_INSTRUCTIONS}\n```{prod_desc}```\n{tone}"},
+        {
+            "text": f"{FINAL_PROMPT}\n{COPY_INSTRUCTIONS}\n{SALT_INSTRUCTIONS}\n\n%SALT%```{salt}```\n%PROD%```{prod_desc}```\n{tone}"
+        },
     )
 
 
 async def generate_email(db, email_generator):
     sample_email = await get_sample_email(db, email_generator.shop)
     tone = get_email_tone(sample_email).content
-    return get_product_copy_chain(tone, email_generator.productDescription)
+    return get_product_copy_chain(
+        tone, email_generator.productDescription, email_generator.salt
+    )
