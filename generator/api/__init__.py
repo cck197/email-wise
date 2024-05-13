@@ -84,7 +84,7 @@ async def send_string_events():
             event = ServerSentEvent(data)
             yield event.encode()
             await asyncio.sleep(0.1)
-        data = json.dumps({"message": string + "^D"})
+        data = json.dumps({"event": "end"})
         event = ServerSentEvent(data)
         yield event.encode()
     except asyncio.CancelledError:

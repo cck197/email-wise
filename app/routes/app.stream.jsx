@@ -31,10 +31,9 @@ export default function Index() {
   useEffect(() => {
     function handleData() {
       if (event) {
-        const newMessage = JSON.parse(event).message;
-
-        // check for the special condition to possibly disconnect and clear the map
-        if (newMessage.includes("^D")) {
+        console.log("event", event);
+        const data = JSON.parse(event);
+        if (data.event === "end") {
           console.log("disconnecting...");
           map.forEach((value, key) => {
             value.source.close(); // close each EventSource
@@ -44,7 +43,7 @@ export default function Index() {
             setMessage("");
           }, 2000);
         } else {
-          setMessage((prevMessage) => prevMessage + newMessage);
+          setMessage((prevMessage) => prevMessage + data.message);
         }
       }
     }

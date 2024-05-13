@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise"
 handle = "emailwise-2"
-application_url = "https://kits-extras-century-usa.trycloudflare.com"
+application_url = "https://cent-intensive-discussion-jennifer.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://kits-extras-century-usa.trycloudflare.com/auth/callback",
-  "https://kits-extras-century-usa.trycloudflare.com/auth/shopify/callback",
-  "https://kits-extras-century-usa.trycloudflare.com/api/auth/callback"
+  "https://cent-intensive-discussion-jennifer.trycloudflare.com/auth/callback",
+  "https://cent-intensive-discussion-jennifer.trycloudflare.com/auth/shopify/callback",
+  "https://cent-intensive-discussion-jennifer.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
