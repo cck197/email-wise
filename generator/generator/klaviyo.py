@@ -84,3 +84,8 @@ def assign_campaign_template(campaign_id, template_id):
         }
     }
     return klaviyo.Campaigns.create_campaign_message_assign_template(body)
+
+
+def get_templates():
+    templates = klaviyo.Templates.get_templates(sort="-created")
+    return [t["attributes"] for t in templates["data"]]
