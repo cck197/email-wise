@@ -10,6 +10,10 @@ import {
   BlockStack,
   PageActions,
   Select,
+  useBreakpoints,
+  InlineGrid,
+  Box,
+  Divider,
 } from "@shopify/polaris";
 import {
   getLLMProviders,
@@ -82,6 +86,7 @@ export default function SettingsForm() {
   const [formState, setFormState] = useState(settings);
   const [cleanFormState, setCleanFormState] = useState(settings);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
+  const { smUp } = useBreakpoints();
 
   const nav = useNavigation();
   const isSaving =
@@ -122,13 +127,26 @@ export default function SettingsForm() {
         title={settings.id === "new" ? "Add Settings" : "Edit Settings"}
       ></ui-title-bar>
       <Layout>
-        <Layout.Section>
-          <BlockStack gap="500">
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
+        <BlockStack gap={{ xs: "800", sm: "400" }}>
+          <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+            <Box
+              as="section"
+              paddingInlineStart={{ xs: 400, sm: 0 }}
+              paddingInlineEnd={{ xs: 400, sm: 0 }}
+            >
+              <BlockStack gap="400">
+                <Text as="h3" variant="headingMd">
                   Email Integration
                 </Text>
+                <Text as="p" variant="bodyMd">
+                  Adding an email integration enables EmailWise to create new
+                  emails that match your existing campaigns in tone, mood,
+                  style, syntax, and perspective.
+                </Text>
+              </BlockStack>
+            </Box>
+            <Card roundedAbove="sm">
+              <BlockStack gap="400">
                 <Select
                   label="Select your provider"
                   options={emailProviders}
@@ -151,11 +169,26 @@ export default function SettingsForm() {
                 />
               </BlockStack>
             </Card>
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
+          </InlineGrid>
+          {smUp ? <Divider /> : null}
+          <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+            <Box
+              as="section"
+              paddingInlineStart={{ xs: 400, sm: 0 }}
+              paddingInlineEnd={{ xs: 400, sm: 0 }}
+            >
+              <BlockStack gap="400">
+                <Text as="h3" variant="headingMd">
                   AI Integration
                 </Text>
+                <Text as="p" variant="bodyMd">
+                  Add an AI integration to enable email generation using your
+                  provider of choice.
+                </Text>
+              </BlockStack>
+            </Box>
+            <Card roundedAbove="sm">
+              <BlockStack gap="400">
                 <Select
                   label="Select your provider"
                   options={lLMProviders}
@@ -176,8 +209,8 @@ export default function SettingsForm() {
                 />
               </BlockStack>
             </Card>
-          </BlockStack>
-        </Layout.Section>
+          </InlineGrid>
+        </BlockStack>
         <Layout.Section>
           <PageActions
             primaryAction={{

@@ -2,7 +2,14 @@ import os
 
 from klaviyo_api import KlaviyoAPI
 
-klaviyo = KlaviyoAPI(os.environ["KLAVIYO_API_KEY"])
+api_key = os.environ.get("KLAVIYO_API_KEY")
+klaviyo = KlaviyoAPI(api_key) if api_key else None
+
+
+# set the Klaviyo client using an API key passed as argument
+def set_klaviyo_client(api_key):
+    global klaviyo
+    klaviyo = KlaviyoAPI(api_key)
 
 
 def create_template(name, html, text):
