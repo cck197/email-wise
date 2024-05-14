@@ -75,7 +75,7 @@ export async function action({ request }) {
   return redirect("/app");
 }
 
-export function SettingsForm() {
+export default function SettingsForm() {
   const errors = useActionData()?.errors || {};
 
   const { settings, lLMProviders, emailProviders } = useLoaderData();
@@ -187,20 +187,6 @@ export function SettingsForm() {
               onAction: handleSave,
             }}
           />
-        </Layout.Section>
-      </Layout>
-    </Page>
-  );
-}
-
-export default function Index() {
-  return (
-    <Page>
-      <Layout>
-        <Layout.Section>
-          <Card padding="0">
-            <SettingsForm />
-          </Card>
         </Layout.Section>
       </Layout>
     </Page>
