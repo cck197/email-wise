@@ -14,6 +14,7 @@ import {
   InlineGrid,
   Box,
   Divider,
+  Banner,
 } from "@shopify/polaris";
 import {
   getLLMProviders,
@@ -59,6 +60,8 @@ export async function action({ request }) {
   const formData = Object.fromEntries(await request.formData());
   const { emailProviderId, lLMProviderId, emailKey, lLMKey } = formData;
 
+  console.log("in action", emailProviderId, lLMProviderId, emailKey, lLMKey);
+
   const data = {
     shop,
     emailProviderId: parseInt(emailProviderId),
@@ -67,27 +70,33 @@ export async function action({ request }) {
     lLMKey,
   };
 
-  console.log("data", data);
-
   const errors = validateSettings(data);
   if (errors) {
     return json({ errors }, { status: 422 });
   }
 
-  const settings = await saveSettings(data);
-  console.log("settings", settings);
-  return redirect(request.url);
+  try {
+    await saveSettings(data);
+  } catch (error) {
+    return json({ errors: { general: "Error saving settings" }, status: 500 });
+  }
+  // return json({ success: true });
+  return redirect("/app/settings");
 }
 
 export default function SettingsForm() {
-  const errors = useActionData()?.errors || {};
+  const actionData = useActionData();
+
+  const errors = actionData?.errors || {};
+  const success = actionData?.success || false;
+  console.log("errors", errors);
+  console.log("success", success);
 
   const { settings, lLMProviders, emailProviders } = useLoaderData();
   const [formState, setFormState] = useState(settings);
   const [cleanFormState, setCleanFormState] = useState(settings);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
   const { smUp } = useBreakpoints();
-  console.log("isDirty", isDirty);
 
   const nav = useNavigation();
   const isSaving =
@@ -129,6 +138,12 @@ export default function SettingsForm() {
       ></ui-title-bar>
       <Layout>
         <BlockStack gap={{ xs: "800", sm: "400" }}>
+          {errors.general && (
+            <Banner status="critical">{errors.general}</Banner>
+          )}
+          {success && (
+            <Banner status="success">Settings saved successfully</Banner>
+          )}
           <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
             <Box
               as="section"

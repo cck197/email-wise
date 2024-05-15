@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise"
 handle = "emailwise-2"
-application_url = "https://wild-adapted-botswana-efficient.trycloudflare.com"
+application_url = "https://direction-code-reflections-sustained.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://wild-adapted-botswana-efficient.trycloudflare.com/auth/callback",
-  "https://wild-adapted-botswana-efficient.trycloudflare.com/auth/shopify/callback",
-  "https://wild-adapted-botswana-efficient.trycloudflare.com/api/auth/callback"
+  "https://direction-code-reflections-sustained.trycloudflare.com/auth/callback",
+  "https://direction-code-reflections-sustained.trycloudflare.com/auth/shopify/callback",
+  "https://direction-code-reflections-sustained.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

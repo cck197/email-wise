@@ -105,6 +105,7 @@ export async function saveSettings(data) {
     console.log(await result.get());
   } catch (error) {
     console.error("error:", error);
+    throw error;
   } finally {
     client.disconnect();
   }
