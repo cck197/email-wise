@@ -76,7 +76,7 @@ export async function action({ request }) {
 
   const settings = await saveSettings(data);
   console.log("settings", settings);
-  return redirect("/app");
+  return redirect(request.url);
 }
 
 export default function SettingsForm() {

@@ -84,19 +84,30 @@ export async function upsertEmailGenerator(id, data, graphql) {
 
 export async function saveSettings(data) {
   const settings = await getSettings(data.shop);
+  const include = {
+    emailProvider: true,
+    lLMProvider: true,
+  };
   const settings_ = settings
     ? await db.settings.update({
         where: { id: settings.id },
+        include,
         data,
       })
     : await db.settings.create({
         data,
+        include,
       });
   const client = getClient();
   const task = client.createTask("tasks.save_settings_hook");
-  const result = task.applyAsync([settings, settings_]);
-  console.log(await result.get());
-  client.disconnect();
+  try {
+    const result = task.applyAsync([settings, settings_]);
+    console.log(await result.get());
+  } catch (error) {
+    console.error("error:", error);
+  } finally {
+    client.disconnect();
+  }
   return settings_;
 }
 

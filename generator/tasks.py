@@ -13,6 +13,7 @@ from generator.settings import async_save_settings_hook
 broker_url = os.environ["BROKER_URL"]
 
 app = Celery("tasks", broker=broker_url, backend=broker_url)
+app.config_from_object("celeryconfig")
 
 
 @app.task
