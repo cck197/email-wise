@@ -1,4 +1,5 @@
 import db from "/app/db.server";
+import { getClient } from "./celery";
 
 export async function getEmailGenerator(id, graphql) {
   const generator = await db.emailGenerator.findFirstOrThrow({ where: { id } });
@@ -29,6 +30,10 @@ export async function getSettings(shop) {
   return await db.settings.findFirst({
     where: {
       shop: shop,
+    },
+    include: {
+      emailProvider: true,
+      lLMProvider: true,
     },
   });
 }
@@ -79,7 +84,7 @@ export async function upsertEmailGenerator(id, data, graphql) {
 
 export async function saveSettings(data) {
   const settings = await getSettings(data.shop);
-  return settings
+  const settings_ = settings
     ? await db.settings.update({
         where: { id: settings.id },
         data,
@@ -87,6 +92,12 @@ export async function saveSettings(data) {
     : await db.settings.create({
         data,
       });
+  const client = getClient();
+  const task = client.createTask("tasks.save_settings_hook");
+  const result = task.applyAsync([settings, settings_]);
+  console.log(await result.get());
+  client.disconnect();
+  return settings_;
 }
 
 export async function getEmailGeneratorById(id) {

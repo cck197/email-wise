@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise"
 handle = "emailwise-2"
-application_url = "https://pos-hang-acute-scope.trycloudflare.com"
+application_url = "https://global-bars-obituaries-blackjack.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://pos-hang-acute-scope.trycloudflare.com/auth/callback",
-  "https://pos-hang-acute-scope.trycloudflare.com/auth/shopify/callback",
-  "https://pos-hang-acute-scope.trycloudflare.com/api/auth/callback"
+  "https://global-bars-obituaries-blackjack.trycloudflare.com/auth/callback",
+  "https://global-bars-obituaries-blackjack.trycloudflare.com/auth/shopify/callback",
+  "https://global-bars-obituaries-blackjack.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

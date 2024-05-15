@@ -87,6 +87,7 @@ export default function SettingsForm() {
   const [cleanFormState, setCleanFormState] = useState(settings);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
   const { smUp } = useBreakpoints();
+  console.log("isDirty", isDirty);
 
   const nav = useNavigation();
   const isSaving =
