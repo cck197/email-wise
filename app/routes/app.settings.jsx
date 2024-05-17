@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { json, redirect } from "@remix-run/node";
 import { authenticate } from "/app/shopify.server";
 import {
@@ -36,8 +36,6 @@ export async function loader({ request }) {
   const lLMProviders = await getLLMProviders();
   const emailProviders = await getEmailProviders();
 
-  console.log("settings", settings);
-
   return json({
     settings: settings
       ? settings
@@ -60,8 +58,6 @@ export async function action({ request }) {
   const formData = Object.fromEntries(await request.formData());
   const { emailProviderId, lLMProviderId, emailKey, lLMKey } = formData;
 
-  console.log("in action", emailProviderId, lLMProviderId, emailKey, lLMKey);
-
   const data = {
     shop,
     emailProviderId: parseInt(emailProviderId),
@@ -70,37 +66,48 @@ export async function action({ request }) {
     lLMKey,
   };
 
-  const errors = validateSettings(data);
+  const errors = validateSettings({
+    ...formData,
+    shop,
+    emailProviderId: parseInt(emailProviderId),
+    lLMProviderId: parseInt(lLMProviderId),
+  });
   if (errors) {
     return json({ errors }, { status: 422 });
   }
 
-  try {
-    await saveSettings(data);
-  } catch (error) {
-    return json({ errors: { general: "Error saving settings" }, status: 500 });
+  const result = await saveSettings(data);
+  if (result) {
+    console.log("result", result);
+    return json({ result: result });
   }
-  // return json({ success: true });
+  // There's something about Remix I don't understand here. This function
+  // shouldn't be called unless there's a request other than GET, i.e. when the
+  // form is submitted. However, removing the redirect here prevents the
+  // settings page from loading at all, instead the app redirects to the home
+  // page.
   return redirect("/app/settings");
 }
 
 export default function SettingsForm() {
   const actionData = useActionData();
 
+  console.log("actionData", actionData);
+
+  const { lLMKey: lLMKeyResult, emailKey: emailKeyResult } =
+    actionData?.result || {};
+
   const errors = actionData?.errors || {};
-  const success = actionData?.success || false;
-  console.log("errors", errors);
-  console.log("success", success);
 
   const { settings, lLMProviders, emailProviders } = useLoaderData();
   const [formState, setFormState] = useState(settings);
   const [cleanFormState, setCleanFormState] = useState(settings);
-  const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
+  // const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
+  const [isDirty, setIsDirty] = useState(false);
   const { smUp } = useBreakpoints();
 
   const nav = useNavigation();
-  const isSaving =
-    nav.state === "submitting" && nav.formData?.get("action") !== "delete";
+  const isSaving = nav.state === "submitting";
 
   const handleProviderChange = useCallback(
     (value, setStateFunction, stateKey) => {
@@ -131,6 +138,10 @@ export default function SettingsForm() {
     submit(data, { method: "post" });
   }
 
+  useEffect(() => {
+    setIsDirty(JSON.stringify(formState) !== JSON.stringify(cleanFormState));
+  }, [formState, cleanFormState]);
+
   return (
     <Page>
       <ui-title-bar
@@ -138,11 +149,17 @@ export default function SettingsForm() {
       ></ui-title-bar>
       <Layout>
         <BlockStack gap={{ xs: "800", sm: "400" }}>
-          {errors.general && (
-            <Banner status="critical">{errors.general}</Banner>
+          {lLMKeyResult?.success && (
+            <Banner tone="success">{lLMKeyResult.success}</Banner>
           )}
-          {success && (
-            <Banner status="success">Settings saved successfully</Banner>
+          {lLMKeyResult?.error && (
+            <Banner tone="critical">{lLMKeyResult.error}</Banner>
+          )}
+          {emailKeyResult?.success && (
+            <Banner tone="success">{emailKeyResult.success}</Banner>
+          )}
+          {emailKeyResult?.error && (
+            <Banner tone="critical">{emailKeyResult.error}</Banner>
           )}
           <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
             <Box
@@ -181,7 +198,7 @@ export default function SettingsForm() {
                   onChange={(emailKey) =>
                     setFormState({ ...formState, emailKey })
                   }
-                  error={errors.emailKey}
+                  error={errors.emailKey || emailKeyResult?.error}
                 />
               </BlockStack>
             </Card>
@@ -221,7 +238,7 @@ export default function SettingsForm() {
                   autoComplete="off"
                   value={formState?.lLMKey}
                   onChange={(lLMKey) => setFormState({ ...formState, lLMKey })}
-                  error={errors.lLMKey}
+                  error={errors.lLMKey || lLMKeyResult?.error}
                 />
               </BlockStack>
             </Card>

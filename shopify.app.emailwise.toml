@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise"
 handle = "emailwise-2"
-application_url = "https://direction-code-reflections-sustained.trycloudflare.com"
+application_url = "https://weddings-estate-use-investor.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://direction-code-reflections-sustained.trycloudflare.com/auth/callback",
-  "https://direction-code-reflections-sustained.trycloudflare.com/auth/shopify/callback",
-  "https://direction-code-reflections-sustained.trycloudflare.com/api/auth/callback"
+  "https://weddings-estate-use-investor.trycloudflare.com/auth/callback",
+  "https://weddings-estate-use-investor.trycloudflare.com/auth/shopify/callback",
+  "https://weddings-estate-use-investor.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

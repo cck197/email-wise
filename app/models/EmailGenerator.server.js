@@ -102,14 +102,10 @@ export async function saveSettings(data) {
   const task = client.createTask("tasks.save_settings_hook");
   try {
     const result = task.applyAsync([settings, settings_]);
-    console.log(await result.get());
-  } catch (error) {
-    console.error("error:", error);
-    throw error;
+    return await result.get();
   } finally {
     client.disconnect();
   }
-  return settings_;
 }
 
 export async function getEmailGeneratorById(id) {
