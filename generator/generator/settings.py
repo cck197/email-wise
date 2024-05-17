@@ -1,6 +1,7 @@
+import importlib
+
 from generator.db import get_db
 from generator.klaviyo import db_import_from_klaviyo
-from generator.openai import check_api_key
 
 
 async def email_settings_hook(settings):
@@ -15,7 +16,10 @@ async def email_settings_hook(settings):
 
 
 async def llm_settings_hook(settings):
-    return check_api_key(settings["lLMKey"])
+    provider_name = settings["lLMProvider"]["name"].lower()
+    module_name = f"generator.{provider_name}"
+    module = importlib.import_module(module_name)
+    return getattr(module, "check_api_key")(settings["lLMKey"])
 
 
 async def async_save_settings_hook(old, new):
@@ -26,3 +30,10 @@ async def async_save_settings_hook(old, new):
         result["lLMKey"] = await llm_settings_hook(new)
     print(f"settings saved: {result=}")
     return result
+
+
+async def get_settings(shop):
+    db = await get_db()
+    return await db.settings.find_first(
+        where={"shop": shop}, include={"emailProvider": True, "lLMProvider": True}
+    )

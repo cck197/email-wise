@@ -63,34 +63,8 @@ def get_encoded_event(data):
     return ServerSentEvent(json.dumps(data)).encode()
 
 
-from langchain_anthropic import ChatAnthropic
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-
-model_name = "claude-3-opus-20240229"
-model = ChatAnthropic(model_name=model_name)
-
-
-def get_chain():
-    prompt = ChatPromptTemplate.from_template("tell me a joke about {topic}")
-    parser = StrOutputParser()
-    return prompt | model | parser
-
-
-async def send_string_events(topic):
-    chain = get_chain()
-    try:
-        async for chunk in chain.astream({"topic": topic}):
-            yield get_encoded_event({"message": chunk})
-        yield get_encoded_event({"event": "end"})
-    except asyncio.CancelledError:
-        # client has disconnected, perform cleanup here
-        print("client disconnected")
-
-
 async def send_email_events(id):
     db = await get_db()
-    chain = get_chain()
     email_generator = await get_email_generator(db, int(id))
     (chain, input) = await generate_email(db, email_generator)
     try:
@@ -117,29 +91,11 @@ async def send_email_events(id):
 
 
 @check_sse_mimetypes
-@app.get("/sse/joke/<topic>")
-async def sse_joke(topic):
-    response = await make_response(send_string_events(topic), SSE_HEADERS)
-    response.timeout = None
-    return response
-
-
-@check_sse_mimetypes
 @app.get("/sse/email/<id>")
 async def sse_email(id):
     response = await make_response(send_email_events(id), SSE_HEADERS)
     response.timeout = None
     return response
-
-
-# @app.post("/webhook")
-# async def webhook():
-#     db = await get_db()
-#     data = await request.get_json()
-#     print(f"{data=}")
-#     email_generator = await get_email_generator(db, int(data["data"]["id"]))
-#     await generate_email(db, email_generator, data["data"]["productDescription"])
-#     return {"status": "success"}
 
 
 def run():

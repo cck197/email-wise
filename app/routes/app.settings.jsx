@@ -150,13 +150,15 @@ export default function SettingsForm() {
       <Layout>
         <BlockStack gap={{ xs: "800", sm: "400" }}>
           {lLMKeyResult?.success && (
-            <Banner tone="success">{lLMKeyResult.success}</Banner>
+            <Banner tone="success">Successfully updated AI Integration</Banner>
           )}
           {lLMKeyResult?.error && (
             <Banner tone="critical">{lLMKeyResult.error}</Banner>
           )}
           {emailKeyResult?.success && (
-            <Banner tone="success">{emailKeyResult.success}</Banner>
+            <Banner tone="success">
+              Successfully updated Email Integration
+            </Banner>
           )}
           {emailKeyResult?.error && (
             <Banner tone="critical">{emailKeyResult.error}</Banner>

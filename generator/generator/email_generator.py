@@ -1,9 +1,15 @@
 import os
 
+from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+
+from .settings import get_settings
 
 GROQ_MODEL_NAME = os.environ.get("GROQ_MODEL_NAME", "llama3-70b-8192")
+OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME", "gpt-4o")
+ANTHROPIC_MODEL_NAME = os.environ.get("ANTHROPIC_MODEL_NAME", "claude-3-opus-20240229")
 
 
 SYSTEM_PROMPT = os.environ.get(
@@ -78,6 +84,18 @@ use the same tone qualities for the output. Start the email with a catchy subjec
 default_chat = ChatGroq(temperature=0, model_name=GROQ_MODEL_NAME)
 
 
+def get_chat(settings):
+    kwargs = {"api_key": settings.lLMKey}
+    chat_map = {
+        "Groq": ChatGroq(temperature=0, model_name=GROQ_MODEL_NAME, **kwargs),
+        "OpenAI": ChatOpenAI(temperature=0, model_name=OPENAI_MODEL_NAME, **kwargs),
+        "Anthropic": ChatAnthropic(
+            temperature=0, model_name=ANTHROPIC_MODEL_NAME, **kwargs
+        ),
+    }
+    return chat_map.get(settings.lLMProvider.name, default_chat)
+
+
 async def get_email_generator(db, id):
     return await db.emailgenerator.find_first(where={"id": id})
 
@@ -133,8 +151,11 @@ def get_product_copy_chain(tone, prod_desc, salt, chat=default_chat):
 
 
 async def generate_email(db, email_generator):
+    settings = await get_settings(email_generator.shop)
+    chat = get_chat(settings)
+    print(f"{chat=}")
     sample_email = await get_sample_email(db, email_generator.shop)
-    tone = get_email_tone(sample_email).content
+    tone = get_email_tone(sample_email, chat=chat).content
     return get_product_copy_chain(
-        tone, email_generator.productDescription, email_generator.salt
+        tone, email_generator.productDescription, email_generator.salt, chat=chat
     )
