@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise"
 handle = "emailwise-2"
-application_url = "https://p-muscles-fighting-selecting.trycloudflare.com"
+application_url = "https://substantially-thanksgiving-memory-fortune.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://p-muscles-fighting-selecting.trycloudflare.com/auth/callback",
-  "https://p-muscles-fighting-selecting.trycloudflare.com/auth/shopify/callback",
-  "https://p-muscles-fighting-selecting.trycloudflare.com/api/auth/callback"
+  "https://substantially-thanksgiving-memory-fortune.trycloudflare.com/auth/callback",
+  "https://substantially-thanksgiving-memory-fortune.trycloudflare.com/auth/shopify/callback",
+  "https://substantially-thanksgiving-memory-fortune.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

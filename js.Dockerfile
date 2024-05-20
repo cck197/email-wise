@@ -17,3 +17,6 @@ RUN npm run build
 RUN rm -f prisma/dev.sqlite
 
 CMD ["npm", "run", "docker-start"]
+
+# docker build -t emailwise-frontend:latest -f js.Dockerfile .
+# docker run --rm --env-file .env emailwise-frontend:latest

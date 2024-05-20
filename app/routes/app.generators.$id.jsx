@@ -219,7 +219,7 @@ export default function EmailGeneratorForm() {
             <Card>
               <BlockStack gap="500">
                 <Text as={"h2"} variant="headingLg">
-                  Salt
+                  Customise
                 </Text>
                 <TextField
                   id="salt"
@@ -247,7 +247,7 @@ export default function EmailGeneratorForm() {
                     <Button variant="primary" onClick={toggleConnection}>
                       {isConnected ? "Stop generating" : "Generate"}
                     </Button>
-                    {isLoading ? (
+                    {isConnected && isLoading ? (
                       <Spinner accessibilityLabel="Loading stream data" />
                     ) : (
                       <TextField
