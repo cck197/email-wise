@@ -73,11 +73,24 @@ TONE_INSTRUCTIONS = os.environ.get(
     "List the tone qualities for the text delimited by triple backticks below using the list.",
 )
 
+LIKENESS_INSTRUCTIONS = os.environ.get(
+    "LIKENESS_INSTRUCTIONS",
+    """
+The email should have similar tone qualities to those listed below. 
+The degree of likeness is a five point scale from 1 to 5:
+1: Not at all
+2: Very little
+3: Somewhat
+4: Quite a bit
+5: Very much
+""",
+)
+
 FINAL_PROMPT = os.environ.get(
     "FINAL_PROMPT",
     """
-Write a brief (no more than 500 words) sales email for the product delimited by triple backticks below
-use the same tone qualities for the output. Start the email with a catchy subject line.
+Write a brief (no more than 500 words) sales email for the product delimited by triple backticks below.
+Start the email with a catchy subject line.
 """,
 )
 
@@ -137,7 +150,7 @@ def get_email_tone(email, chat=default_chat):
     return chain.invoke({"text": f"```{cleaned_email}```\n{STYLE_ATTRS}"})
 
 
-def get_product_copy_chain(tone, prod_desc, salt, chat=default_chat):
+def get_product_copy_chain(tone, prod_desc, salt, likeness, chat=default_chat):
     system = f"""{SYSTEM_PROMPT} {LLAMA3_AVOID_EXTRA_CRUFT}"""
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{text}")])
     chain = prompt | chat
@@ -145,7 +158,10 @@ def get_product_copy_chain(tone, prod_desc, salt, chat=default_chat):
     return (
         chain,
         {
-            "text": f"{FINAL_PROMPT}\n{COPY_INSTRUCTIONS}\n{SALT_INSTRUCTIONS}\n\n%SALT%```{salt}```\n%PROD%```{prod_desc}```\n{tone}"
+            "text": f"{FINAL_PROMPT}\n{COPY_INSTRUCTIONS}\n"
+            f"{SALT_INSTRUCTIONS}\n\n%SALT%```{salt}```\n"
+            f"%PROD%```{prod_desc}```\n"
+            f"{LIKENESS_INSTRUCTIONS} %LIKENESS```{likeness}```\n{tone}"
         },
     )
 
@@ -157,5 +173,9 @@ async def generate_email(db, email_generator):
     sample_email = await get_sample_email(db, email_generator.shop)
     tone = get_email_tone(sample_email, chat=chat).content
     return get_product_copy_chain(
-        tone, email_generator.productDescription, email_generator.salt, chat=chat
+        tone,
+        email_generator.productDescription,
+        email_generator.salt,
+        email_generator.likeness,
+        chat=chat,
     )

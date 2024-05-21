@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 import { json, redirect } from "@remix-run/node";
 import {
@@ -21,6 +21,7 @@ import {
   BlockStack,
   PageActions,
   Spinner,
+  RangeSlider,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 
@@ -57,6 +58,7 @@ export async function action({ request, params }) {
   const data = {
     shop,
     ...formData,
+    likeness: Number(formData.likeness),
   };
 
   if (formData.action === "delete") {
@@ -80,11 +82,11 @@ export default function EmailGeneratorForm() {
   const { generator, email, baseUrl } = useLoaderData();
   const [formState, setFormState] = useState(generator);
   const [cleanFormState, setCleanFormState] = useState(generator);
+  const [isDirty, setIsDirty] = useState(false);
   const [message, setMessage] = useState(email ? email.text : "");
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const eventSourceRef = useRef(null);
-  const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
 
   const nav = useNavigation();
   const isSaving =
@@ -145,12 +147,16 @@ export default function EmailGeneratorForm() {
     }
   }, [isConnected, baseUrl, generator.id]);
 
+  useEffect(() => {
+    setIsDirty(JSON.stringify(formState) !== JSON.stringify(cleanFormState));
+  }, [formState, cleanFormState]);
+
   const toggleConnection = () => {
     if (isConnected) {
       eventSourceRef.current?.close();
       eventSourceRef.current = null;
       setIsConnected(false);
-      setMessage("");
+      setMessage(email ? email.text : "");
     } else {
       setMessage("");
       setIsConnected(true);
@@ -165,11 +171,26 @@ export default function EmailGeneratorForm() {
       productVariantId: formState.productVariantId || "",
       productHandle: formState.productHandle || "",
       salt: formState.salt || "",
+      likeness: formState.likeness,
     };
 
     setCleanFormState({ ...formState });
     submit(data, { method: "post" });
   }
+
+  const handleRangeSliderChange = useCallback(
+    function handleRangeSliderChange(value) {
+      setFormState({ ...formState, likeness: value });
+    },
+    [formState],
+  );
+
+  const handleSaltChange = useCallback(
+    function handleSaltChange(salt) {
+      setFormState({ ...formState, salt });
+    },
+    [formState],
+  );
 
   return (
     <Page>
@@ -221,6 +242,24 @@ export default function EmailGeneratorForm() {
                 <Text as={"h2"} variant="headingLg">
                   Customise
                 </Text>
+                <RangeSlider
+                  id="likeness"
+                  label="Style consistency"
+                  min={1}
+                  max={5}
+                  value={formState.likeness}
+                  onChange={handleRangeSliderChange}
+                  prefix={<p>Not at all like previous emails</p>}
+                  suffix={
+                    <p
+                      style={{
+                        textAlign: "right",
+                      }}
+                    >
+                      Very much like previous emails
+                    </p>
+                  }
+                />
                 <TextField
                   id="salt"
                   helpText="Anything you want to add to the email"
@@ -228,7 +267,7 @@ export default function EmailGeneratorForm() {
                   labelHidden
                   autoComplete="off"
                   value={formState.salt}
-                  onChange={(salt) => setFormState({ ...formState, salt })}
+                  onChange={handleSaltChange}
                   error={errors.salt}
                 />
               </BlockStack>
@@ -247,9 +286,10 @@ export default function EmailGeneratorForm() {
                     <Button variant="primary" onClick={toggleConnection}>
                       {isConnected ? "Stop generating" : "Generate"}
                     </Button>
-                    {isConnected && isLoading ? (
+                    {isConnected && isLoading && (
                       <Spinner accessibilityLabel="Loading stream data" />
-                    ) : (
+                    )}
+                    {message && (
                       <TextField
                         value={message}
                         multiline="true"
