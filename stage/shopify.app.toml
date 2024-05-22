@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "317a3485160375756c2386951522cf3a"
-name = "EmailWise Debug"
-handle = "emailwise-debug"
-application_url = "https://sized-nicholas-vpn-describing.trycloudflare.com"
+client_id = "9fafc325b6daf03e3cbc9b51613bd00b"
+name = "Emailwise Stage"
+handle = "emailwise-stage"
+application_url = "https://shopify.stage.emailwise.io"
 embedded = true
 
 [build]
@@ -16,11 +16,7 @@ include_config_on_deploy = true
 scopes = "read_products"
 
 [auth]
-redirect_urls = [
-  "https://sized-nicholas-vpn-describing.trycloudflare.com/auth/callback",
-  "https://sized-nicholas-vpn-describing.trycloudflare.com/auth/shopify/callback",
-  "https://sized-nicholas-vpn-describing.trycloudflare.com/api/auth/callback"
-]
+redirect_urls = ["https://shopify.stage.emailwise.io/auth/callback"]
 
 [webhooks]
 api_version = "2024-04"
