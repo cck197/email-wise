@@ -35,11 +35,15 @@ import {
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
+  const data = {
+    baseUrl: process.env.SSE_URL,
+  };
 
   if (params.id === "new") {
     return json({
       generator: { id: null, salt: "", likeness: 3 },
       email: null,
+      ...data,
     });
   }
 
@@ -48,7 +52,7 @@ export async function loader({ request, params }) {
   return json({
     generator,
     email: await getEmail(generator.shop, id),
-    baseUrl: process.env.SSE_URL,
+    ...data,
   });
 }
 
@@ -70,7 +74,6 @@ export async function action({ request, params }) {
   }
 
   const errors = validateEmailGenerator(data);
-  console.log("errors", errors);
   if (errors) {
     return json({ errors }, { status: 422 });
   }
@@ -133,7 +136,6 @@ export default function EmailGeneratorForm() {
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.event === "end") {
-          console.log("disconnecting...");
           eventSource.close();
           setIsConnected(false);
           eventSourceRef.current = null;

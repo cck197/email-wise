@@ -1,3 +1,6 @@
+import os
+from urllib.parse import urlparse
+
 from dotenv import load_dotenv
 
 load_dotenv("../.env")
@@ -12,8 +15,6 @@ from generator.db import get_db
 from generator.email_generator import generate_email, get_email_generator, save_email
 
 app = Quart(__name__)
-# TODO change allow_origin to the domain of the frontend
-app = cors(app, allow_origin="*")
 
 from dataclasses import dataclass
 
@@ -22,6 +23,21 @@ SSE_HEADERS = {
     "Cache-Control": "no-cache",
     "Transfer-Encoding": "chunked",
 }
+
+SHOPIFY_APP_URL = os.environ["SHOPIFY_APP_URL"]
+
+
+def get_cors_pattern():
+    parsed_url = urlparse(SHOPIFY_APP_URL)
+    domain = parsed_url.netloc
+    cors_pattern = (
+        rf"^(https?://{domain.replace('.', r'\.')}|http://localhost(:[0-9]+)?)$"
+    )
+    print(f"{cors_pattern=}")
+
+
+# Initialize the Quart app and apply CORS settings
+app = cors(app, allow_origin=get_cors_pattern())
 
 
 def check_sse_mimetypes(request):
