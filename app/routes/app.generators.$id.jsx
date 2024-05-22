@@ -37,7 +37,10 @@ export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
 
   if (params.id === "new") {
-    return json({ generator: { id: null, salt: "" }, email: null });
+    return json({
+      generator: { id: null, salt: "", likeness: 3 },
+      email: null,
+    });
   }
 
   const id = Number(params.id);

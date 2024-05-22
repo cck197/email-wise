@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "9fafc325b6daf03e3cbc9b51613bd00b"
-name = "Emailwise Stage"
+name = "EmailWise Stage"
 handle = "emailwise-stage"
 application_url = "https://shopify.stage.emailwise.io"
 embedded = true

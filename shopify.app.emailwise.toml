@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://sized-nicholas-vpn-describing.trycloudflare.com"
+application_url = "https://others-burlington-interventions-modification.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://sized-nicholas-vpn-describing.trycloudflare.com/auth/callback",
-  "https://sized-nicholas-vpn-describing.trycloudflare.com/auth/shopify/callback",
-  "https://sized-nicholas-vpn-describing.trycloudflare.com/api/auth/callback"
+  "https://others-burlington-interventions-modification.trycloudflare.com/auth/callback",
+  "https://others-burlington-interventions-modification.trycloudflare.com/auth/shopify/callback",
+  "https://others-burlington-interventions-modification.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
