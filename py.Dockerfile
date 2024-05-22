@@ -11,7 +11,7 @@ RUN pip install -r requirements.txt
 RUN pip install -e .
 RUN prisma generate --generator pyClient
 
-EXPOSE 8000
+EXPOSE 10000
 
 # CMD ["hypercorn", "api"]
 
