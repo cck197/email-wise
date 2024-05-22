@@ -11,8 +11,6 @@ RUN pip install -r requirements.txt
 RUN pip install -e .
 RUN prisma generate --generator pyClient
 
-EXPOSE 10000
-
 # CMD ["hypercorn", "api"]
 
 # docker build -t emailwise-generator:latest -f py.Dockerfile .
