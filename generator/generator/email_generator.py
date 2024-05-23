@@ -219,7 +219,7 @@ def get_product_copy_chain(tone, prod_desc, salt, likeness, chat=default_chat):
     return (
         chain,
         {
-            "text": f"{COPY_INSTRUCTIONS}\n{FINAL_PROMPT}\n{AVOID_EXTRA_CRUFT}\n"
+            "text": f"{COPY_INSTRUCTIONS}\n{FINAL_PROMPT}\n"
             f"{SALT_INSTRUCTIONS}\n\n%SALT%```{salt}```\n"
             f"%PROD%```{prod_desc}```\n"
             f"{LIKENESS_INSTRUCTIONS} %LIKENESS```{likeness}```\n{tone}"
