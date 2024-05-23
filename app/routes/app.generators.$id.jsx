@@ -103,7 +103,7 @@ export default function EmailGeneratorForm() {
   async function selectProduct() {
     const products = await window.shopify.resourcePicker({
       type: "product",
-      action: "select", // customized action verb, either 'select' or 'add',
+      action: "select",
     });
 
     if (products) {
@@ -156,17 +156,21 @@ export default function EmailGeneratorForm() {
     setIsDirty(JSON.stringify(formState) !== JSON.stringify(cleanFormState));
   }, [formState, cleanFormState]);
 
-  const toggleConnection = () => {
-    if (isConnected) {
-      eventSourceRef.current?.close();
-      eventSourceRef.current = null;
-      setIsConnected(false);
-      setMessage(email ? email.text : "");
-    } else {
-      setMessage("");
-      setIsConnected(true);
-    }
-  };
+  function disconnect() {
+    eventSourceRef.current?.close();
+    eventSourceRef.current = null;
+    setIsConnected(false);
+    setMessage(email ? email.text : "");
+  }
+
+  function connect() {
+    setMessage("");
+    setIsConnected(true);
+  }
+
+  function toggleConnection() {
+    isConnected ? disconnect() : connect();
+  }
 
   const submit = useSubmit();
   function handleSave() {
@@ -178,9 +182,12 @@ export default function EmailGeneratorForm() {
       salt: formState.salt || "",
       likeness: formState.likeness,
     };
-
     setCleanFormState({ ...formState });
     submit(data, { method: "post" });
+    if (isConnected) {
+      disconnect();
+    }
+    connect();
   }
 
   const handleRangeSliderChange = useCallback(

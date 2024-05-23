@@ -1,6 +1,9 @@
 import os
 
+import redis
+from langchain.globals import set_llm_cache
 from langchain_anthropic import ChatAnthropic
+from langchain_community.cache import RedisCache
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
@@ -64,7 +67,8 @@ work through each step below and include each in the output but without the name
 SALT_INSTRUCTIONS = os.environ.get(
     "SALT_INSTRUCTIONS",
     """
-Use the salt below delimited by triple backticks to generate unique content for the product description.
+Pay very close attention to the salt below delimited by triple backticks for
+additional instruction. 
 """,
 )
 
@@ -93,6 +97,8 @@ Write a brief (no more than 500 words) sales email for the product delimited by 
 Start the email with a catchy subject line.
 """,
 )
+
+set_llm_cache(RedisCache(redis_=redis.from_url(os.environ["BROKER_URL"]), ttl=3600))
 
 default_chat = ChatGroq(temperature=0, model_name=GROQ_MODEL_NAME)
 

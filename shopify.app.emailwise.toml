@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://contributor-dem-instructor-pets.trycloudflare.com"
+application_url = "https://turning-palmer-cf-relate.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://contributor-dem-instructor-pets.trycloudflare.com/auth/callback",
-  "https://contributor-dem-instructor-pets.trycloudflare.com/auth/shopify/callback",
-  "https://contributor-dem-instructor-pets.trycloudflare.com/api/auth/callback"
+  "https://turning-palmer-cf-relate.trycloudflare.com/auth/callback",
+  "https://turning-palmer-cf-relate.trycloudflare.com/auth/shopify/callback",
+  "https://turning-palmer-cf-relate.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

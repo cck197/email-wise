@@ -71,14 +71,17 @@ export async function upsertEmailGenerator(id, data, graphql) {
   console.log("upsertEmailGenerator", id, data);
   const product = await supplementGenerator(data, graphql);
   data.productDescription = product.productDescription;
-  const generator =
-    id === "new"
-      ? await db.emailGenerator.create({ data })
-      : await db.emailGenerator.update({
-          where: { id: Number(id) },
-          data,
-        });
-  db.email.deleteMany({ where: { emailGeneratorId: generator.id } });
+  if (id === "new") {
+    return await db.emailGenerator.create({ data });
+  }
+  const generator = await db.emailGenerator.update({
+    where: { id: Number(id) },
+    data,
+  });
+  const result = await db.email.deleteMany({
+    where: { emailGeneratorId: generator.id },
+  });
+  console.log("result.count", result.count);
   return generator;
 }
 
