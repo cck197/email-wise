@@ -7,9 +7,9 @@ dotenv.load_dotenv("../.env")
 
 
 from celery import Celery
-from celery.signals import worker_init, worker_shutdown
+from celery.signals import worker_init
 
-from generator.db import get_client, get_db
+from generator.db import connect
 from generator.settings import async_save_settings_hook
 
 broker_url = os.environ["BROKER_URL"]
@@ -21,7 +21,7 @@ app.config_from_object("celeryconfig")
 @worker_init.connect
 def startup_hook(**kwargs):
     print("worker is starting up")
-    asyncio.run(get_db())
+    asyncio.run(connect())
 
 
 @app.task

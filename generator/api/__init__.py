@@ -11,7 +11,7 @@ import json
 from quart import Quart, abort, current_app, make_response, request
 from quart_cors import cors
 
-from generator.db import get_client, get_db
+from generator.db import connect, get_client
 from generator.email_generator import generate_email, get_email_generator, save_email
 
 app = Quart(__name__)
@@ -45,22 +45,12 @@ app = cors(app, allow_origin="*")
 
 @app.before_serving
 async def connect_to_db():
-    await get_db()
+    await connect()
 
 
 @app.after_serving
 async def disconnect_from_db():
     await get_client().disconnect()
-
-
-def check_sse_mimetypes(f):
-    async def decorated_function(*args, **kwargs):
-        if "text/event-stream" not in request.accept_mimetypes:
-            current_app.logger.info("Unsupported MIME type for SSE")
-            abort(400)
-        return await f(*args, **kwargs)
-
-    return decorated_function
 
 
 @dataclass
@@ -87,9 +77,7 @@ def get_encoded_event(data):
     return ServerSentEvent(json.dumps(data)).encode()
 
 
-# @check_sse_mimetypes
 @app.get("/sse/email/<id>")
-# @stream_with_context
 async def sse_email(id):
 
     async def send_email_events():
