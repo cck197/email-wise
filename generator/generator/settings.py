@@ -1,13 +1,13 @@
 import importlib
 
-from generator.db import get_db
+from generator.db import get_client
 from generator.klaviyo import db_import_from_klaviyo
 
 
 async def email_settings_hook(settings):
     print(f"email settings changed: {settings=}")
     provider_map = {"Klaviyo": db_import_from_klaviyo}
-    db = await get_db()
+    db = get_client()
     provider_name = settings["emailProvider"]["name"]
     func = provider_map.get(provider_name)
     if func is None:
@@ -32,8 +32,8 @@ async def async_save_settings_hook(old, new):
     return result
 
 
-async def get_settings(shop):
-    db = await get_db()
+async def get_settings(db, shop):
+    db = get_client()
     return await db.settings.find_first(
         where={"shop": shop}, include={"emailProvider": True, "lLMProvider": True}
     )

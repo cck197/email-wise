@@ -11,7 +11,7 @@ import json
 from quart import Quart, abort, current_app, make_response, request
 from quart_cors import cors
 
-from generator.db import get_db
+from generator.db import get_client, get_db
 from generator.email_generator import generate_email, get_email_generator, save_email
 
 app = Quart(__name__)
@@ -37,12 +37,20 @@ def get_cors_pattern():
 
 
 # Initialize the Quart app and apply CORS settings
-app = cors(app, allow_origin=get_cors_pattern())
+# app = cors(app, allow_origin="*")  # get_cors_pattern())
 
 
-def check_sse_mimetypes(request):
-    if "text/event-stream" not in request.accept_mimetypes:
-        abort(400)
+app = cors(app, allow_origin="*")
+
+
+@app.before_serving
+async def connect_to_db():
+    await get_db()
+
+
+@app.after_serving
+async def disconnect_from_db():
+    await get_client().disconnect()
 
 
 def check_sse_mimetypes(f):
@@ -79,40 +87,44 @@ def get_encoded_event(data):
     return ServerSentEvent(json.dumps(data)).encode()
 
 
-async def send_email_events(id):
-    db = await get_db()
-    email_generator = await get_email_generator(db, int(id))
-    (chain, input) = await generate_email(db, email_generator)
-    try:
-        chunks = []
-        async for chunk in chain.astream(input):
-            content = chunk.content
-            chunks.append(content)
-            yield get_encoded_event({"message": content})
-        copy = "".join(chunks)
-        name = copy.split("\n")[0]
-        print(f"done generating email: {name=}")
-        email = await save_email(
-            db,
-            name,
-            copy,
-            copy,
-            email_generator,
-        )
-        # print(f"saved email: {email=}")
-        yield get_encoded_event({"event": "end"})
-    except asyncio.CancelledError:
-        # client has disconnected, perform cleanup here
-        print("client disconnected")
-
-
-@check_sse_mimetypes
+# @check_sse_mimetypes
 @app.get("/sse/email/<id>")
+# @stream_with_context
 async def sse_email(id):
-    response = await make_response(send_email_events(id), SSE_HEADERS)
+
+    async def send_email_events():
+        db = get_client()
+        email_generator = await get_email_generator(db, int(id))
+        if email_generator is None:
+            yield get_encoded_event({"error": f"email generator {id} not found"})
+            return
+        (chain, input) = await generate_email(db, email_generator)
+        try:
+            chunks = []
+            async for chunk in chain.astream(input):
+                content = chunk.content
+                chunks.append(content)
+                yield get_encoded_event({"message": content})
+            copy = "".join(chunks)
+            name = copy.split("\n")[0]
+            print(f"done generating email: {name=}")
+            email = await save_email(
+                db,
+                name,
+                copy,
+                copy,
+                email_generator,
+            )
+            # print(f"saved email: {email=}")
+            yield get_encoded_event({"event": "end"})
+        except asyncio.CancelledError:
+            # client has disconnected, perform cleanup here
+            print("client disconnected")
+
+    response = await make_response(send_email_events(), SSE_HEADERS)
     response.timeout = None
     return response
 
 
 def run():
-    app.run()
+    app.run(debug=True)

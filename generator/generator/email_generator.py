@@ -167,7 +167,7 @@ def get_product_copy_chain(tone, prod_desc, salt, likeness, chat=default_chat):
 
 
 async def generate_email(db, email_generator):
-    settings = await get_settings(email_generator.shop)
+    settings = await get_settings(db, email_generator.shop)
     chat = get_chat(settings)
     print(f"{chat=}")
     sample_email = await get_sample_email(db, email_generator.shop)
