@@ -1,5 +1,5 @@
+import { getQueue } from "./bull";
 import db from "/app/db.server";
-import { getClient } from "./celery";
 
 export async function getEmailGenerator(id, graphql) {
   const generator = await db.emailGenerator.findFirstOrThrow({ where: { id } });
@@ -68,7 +68,6 @@ export async function getEmail(shop, id) {
 }
 
 export async function upsertEmailGenerator(id, data, graphql) {
-  console.log("upsertEmailGenerator", id, data);
   const product = await supplementGenerator(data, graphql);
   data.productDescription = product.productDescription;
   if (id === "new") {
@@ -78,10 +77,9 @@ export async function upsertEmailGenerator(id, data, graphql) {
     where: { id: Number(id) },
     data,
   });
-  const result = await db.email.deleteMany({
+  await db.email.deleteMany({
     where: { emailGeneratorId: generator.id },
   });
-  console.log("result.count", result.count);
   return generator;
 }
 
@@ -101,14 +99,9 @@ export async function saveSettings(data) {
         data,
         include,
       });
-  const client = getClient();
-  const task = client.createTask("tasks.save_settings_hook");
-  try {
-    const result = task.applyAsync([settings, settings_]);
-    return await result.get();
-  } finally {
-    client.disconnect();
-  }
+  const task_queue = getQueue();
+  let job = await task_queue.add({ old: settings, new: settings_ });
+  return await job.finished();
 }
 
 export async function getEmailGeneratorById(id) {

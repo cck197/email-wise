@@ -1,4 +1,4 @@
-from anthropic import Anthropic, AuthenticationError
+from anthropic import Anthropic, APIStatusError
 
 
 class AnthropicClient(object):
@@ -19,6 +19,6 @@ def check_api_key(api_key):
     try:
         client.list_models()
         return {"success": True}
-    except AuthenticationError as e:
+    except APIStatusError as e:
         error_msg = e.body["error"]["message"]
         return {"error": f"Anthropic: {error_msg}"}

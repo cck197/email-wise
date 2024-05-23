@@ -78,7 +78,6 @@ export async function action({ request }) {
 
   const result = await saveSettings(data);
   if (result) {
-    console.log("result", result);
     return json({ result: result });
   }
   // There's something about Remix I don't understand here. This function
@@ -91,8 +90,6 @@ export async function action({ request }) {
 
 export default function SettingsForm() {
   const actionData = useActionData();
-
-  console.log("actionData", actionData);
 
   const { lLMKey: lLMKeyResult, emailKey: emailKeyResult } =
     actionData?.result || {};
@@ -119,7 +116,7 @@ export default function SettingsForm() {
         }));
       } else {
         // Handle case where parsed value is NaN
-        console.error("Received NaN value for provider ID");
+        console.error("received NaN value for provider ID");
       }
     },
     [],
@@ -156,9 +153,7 @@ export default function SettingsForm() {
             <Banner tone="critical">{lLMKeyResult.error}</Banner>
           )}
           {emailKeyResult?.success && (
-            <Banner tone="success">
-              Successfully updated Email Integration
-            </Banner>
+            <Banner tone="success">{emailKeyResult.success}</Banner>
           )}
           {emailKeyResult?.error && (
             <Banner tone="critical">{emailKeyResult.error}</Banner>

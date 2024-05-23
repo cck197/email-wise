@@ -22,7 +22,7 @@ async def llm_settings_hook(settings):
     return getattr(module, "check_api_key")(settings["lLMKey"])
 
 
-async def async_save_settings_hook(old, new):
+async def save_settings_hook(old, new):
     result = {}
     if old["emailKey"] != new["emailKey"]:
         result["emailKey"] = await email_settings_hook(new)
