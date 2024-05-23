@@ -46,6 +46,7 @@ const EmailGeneratorTable = ({ generators }) => (
     headings={[
       { title: "Thumbnail", hidden: true },
       { title: "Product" },
+      { title: "Subject" },
       { title: "Date created" },
     ]}
     selectable={false}
@@ -81,6 +82,7 @@ const EmailGeneratorTableRow = ({ generator }) => (
         </Link>
       )}
     </IndexTable.Cell>
+    <IndexTable.Cell>{truncate(generator.Email[0]?.name)}</IndexTable.Cell>
     <IndexTable.Cell>
       {new Date(generator.createdAt).toDateString()}
     </IndexTable.Cell>

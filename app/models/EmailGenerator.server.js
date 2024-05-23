@@ -51,6 +51,9 @@ export async function getEmailGeneratorsByShop(shop) {
     where: {
       shop: shop,
     },
+    include: {
+      Email: true,
+    },
     orderBy: { id: "desc" },
   });
 }

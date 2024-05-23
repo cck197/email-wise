@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://one-production-signed-calls.trycloudflare.com"
+application_url = "https://plaintiff-pda-anger-switches.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://one-production-signed-calls.trycloudflare.com/auth/callback",
-  "https://one-production-signed-calls.trycloudflare.com/auth/shopify/callback",
-  "https://one-production-signed-calls.trycloudflare.com/api/auth/callback"
+  "https://plaintiff-pda-anger-switches.trycloudflare.com/auth/callback",
+  "https://plaintiff-pda-anger-switches.trycloudflare.com/auth/shopify/callback",
+  "https://plaintiff-pda-anger-switches.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
