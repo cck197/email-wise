@@ -13,6 +13,7 @@ from .settings import get_settings
 GROQ_MODEL_NAME = os.environ.get("GROQ_MODEL_NAME", "llama3-70b-8192")
 OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME", "gpt-4o")
 ANTHROPIC_MODEL_NAME = os.environ.get("ANTHROPIC_MODEL_NAME", "claude-3-opus-20240229")
+TEMPERATURE = os.environ.get("TEMPERATURE", 0.7)
 
 
 SYSTEM_PROMPT = os.environ.get(
@@ -22,7 +23,8 @@ SYSTEM_PROMPT = os.environ.get(
 
 AVOID_EXTRA_CRUFT = os.environ.get(
     "AVOID_EXTRA_CRUFT",
-    """Avoid starting your responses with 'Here is the' or 'Here's the'. Provide the answer and nothing else.""",
+    """Avoid starting your responses with 'Here is the' or 'Here's the'. No
+    backticks. Provide the answer and nothing else.""",
 )
 
 STYLE_ATTRS = os.environ.get(
@@ -151,16 +153,18 @@ Write a brief (no more than 750 words) sales email for the product delimited by 
 
 set_llm_cache(RedisCache(redis_=redis.from_url(os.environ["BROKER_URL"]), ttl=3600))
 
-default_chat = ChatGroq(temperature=0, model_name=GROQ_MODEL_NAME)
+default_chat = ChatGroq(temperature=TEMPERATURE, model_name=GROQ_MODEL_NAME)
 
 
 def get_chat(settings):
     kwargs = {"api_key": settings.lLMKey}
     chat_map = {
-        "Groq": ChatGroq(temperature=0, model_name=GROQ_MODEL_NAME, **kwargs),
-        "OpenAI": ChatOpenAI(temperature=0, model_name=OPENAI_MODEL_NAME, **kwargs),
+        "Groq": ChatGroq(temperature=TEMPERATURE, model_name=GROQ_MODEL_NAME, **kwargs),
+        "OpenAI": ChatOpenAI(
+            temperature=TEMPERATURE, model_name=OPENAI_MODEL_NAME, **kwargs
+        ),
         "Anthropic": ChatAnthropic(
-            temperature=0, model_name=ANTHROPIC_MODEL_NAME, **kwargs
+            temperature=TEMPERATURE, model_name=ANTHROPIC_MODEL_NAME, **kwargs
         ),
     }
     return chat_map.get(settings.lLMProvider.name, default_chat)
