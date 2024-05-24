@@ -187,6 +187,12 @@ export default function EmailGeneratorForm() {
     disconnect();
   }
 
+  useEffect(() => {
+    if (!isSaving && !isDeleting) {
+      connect();
+    }
+  }, [isSaving, isDeleting]);
+
   const handleRangeSliderChange = useCallback(
     function handleRangeSliderChange(value) {
       setFormState({ ...formState, likeness: value });
