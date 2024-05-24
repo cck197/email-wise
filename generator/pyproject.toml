@@ -34,6 +34,7 @@ bullmq = "^2.7.6"
 
 [tool.poetry.scripts]
 start = "api:run"
+worker = "worker:run"
 
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "^4.1.8"

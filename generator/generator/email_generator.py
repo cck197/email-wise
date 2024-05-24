@@ -114,15 +114,14 @@ Please start the email with a catchy subject line.
 3. Story: Share a relatable story or example that illustrates the problem.
 4. Transformation: Offer a solution that transforms the situation.
 5. Offer: Present your product or service as the key to achieving the transformation.
-6. Response: End with a clear call-to-action that encourages people to take the next step.
-""",
+6. Response: End with a clear call-to-action that encourages people to take the next step.]""",
 )
 
 SALT_INSTRUCTIONS = os.environ.get(
     "SALT_INSTRUCTIONS",
     """
 Pay very close attention to the salt below delimited by triple backticks for
-additional instruction. 
+additional instruction. These details are crucial and MUST be included in the email.
 """,
 )
 
@@ -157,15 +156,11 @@ default_chat = ChatGroq(temperature=TEMPERATURE, model_name=GROQ_MODEL_NAME)
 
 
 def get_chat(settings):
-    kwargs = {"api_key": settings.lLMKey}
+    kwargs = {"api_key": settings.lLMKey, "temperature": TEMPERATURE}
     chat_map = {
-        "Groq": ChatGroq(temperature=TEMPERATURE, model_name=GROQ_MODEL_NAME, **kwargs),
-        "OpenAI": ChatOpenAI(
-            temperature=TEMPERATURE, model_name=OPENAI_MODEL_NAME, **kwargs
-        ),
-        "Anthropic": ChatAnthropic(
-            temperature=TEMPERATURE, model_name=ANTHROPIC_MODEL_NAME, **kwargs
-        ),
+        "Groq": ChatGroq(model_name=GROQ_MODEL_NAME, **kwargs),
+        "OpenAI": ChatOpenAI(model_name=OPENAI_MODEL_NAME, **kwargs),
+        "Anthropic": ChatAnthropic(model_name=ANTHROPIC_MODEL_NAME, **kwargs),
     }
     return chat_map.get(settings.lLMProvider.name, default_chat)
 
@@ -174,7 +169,11 @@ async def get_email_generator(db, id):
     return await db.emailgenerator.find_first(where={"id": id})
 
 
-async def save_email(db, name, html, text, email_generator):
+async def save_email(db, name, html, text, email_generator, delete_existing=True):
+    if delete_existing:
+        await db.email.delete_many(
+            where={"shop": email_generator.shop, "emailGeneratorId": email_generator.id}
+        )
     return await db.email.create(
         data={
             "shop": email_generator.shop,
@@ -212,17 +211,25 @@ def get_email_tone(email, chat=default_chat):
 
 
 def get_product_copy_chain(tone, prod_desc, salt, likeness, chat=default_chat):
-    system = f"""{SYSTEM_PROMPT} {AVOID_EXTRA_CRUFT}"""
+    system = SYSTEM_PROMPT
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{text}")])
     chain = prompt | chat
+
+    likeness = (
+        f"{LIKENESS_INSTRUCTIONS} %LIKENESS```{likeness}```\n{tone}" if tone else ""
+    )
+    salt = f"{SALT_INSTRUCTIONS}\n\n%SALT%```{salt}```\n" if salt else ""
 
     return (
         chain,
         {
-            "text": f"{COPY_INSTRUCTIONS}\n{FINAL_PROMPT}\n"
-            f"{SALT_INSTRUCTIONS}\n\n%SALT%```{salt}```\n"
-            f"%PROD%```{prod_desc}```\n"
-            f"{LIKENESS_INSTRUCTIONS} %LIKENESS```{likeness}```\n{tone}"
+            "text": (
+                f"{COPY_INSTRUCTIONS}\n{FINAL_PROMPT}\n"
+                f"{salt}"
+                f"%PROD%```{prod_desc}```\n"
+                f"{likeness}\n"
+                f"{AVOID_EXTRA_CRUFT}"
+            )
         },
     )
 
@@ -232,7 +239,7 @@ async def generate_email(db, email_generator):
     chat = get_chat(settings)
     print(f"{chat=}")
     sample_email = await get_sample_email(db, email_generator.shop)
-    tone = get_email_tone(sample_email, chat=chat).content
+    tone = get_email_tone(sample_email, chat=chat).content if sample_email else ""
     return get_product_copy_chain(
         tone,
         email_generator.productDescription,

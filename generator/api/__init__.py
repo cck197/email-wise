@@ -96,7 +96,7 @@ async def sse_email(id):
             copy = "".join(chunks)
             name = copy.split("\n")[0]
             print(f"done generating email: {name=}")
-            email = await save_email(
+            await save_email(
                 db,
                 name,
                 copy,
