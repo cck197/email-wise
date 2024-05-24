@@ -184,10 +184,7 @@ export default function EmailGeneratorForm() {
     };
     setCleanFormState({ ...formState });
     submit(data, { method: "post" });
-    if (isConnected) {
-      disconnect();
-    }
-    connect();
+    disconnect();
   }
 
   const handleRangeSliderChange = useCallback(
