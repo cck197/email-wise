@@ -96,7 +96,7 @@ async def sse_email(id):
             copy = "".join(chunks)
             name = copy.split("\n")[0]
             print(f"done generating email: {name=}")
-            await save_email(
+            email = await save_email(
                 db,
                 name,
                 copy,
@@ -104,7 +104,7 @@ async def sse_email(id):
                 email_generator,
             )
             # print(f"saved email: {email=}")
-            yield get_encoded_event({"event": "end"})
+            yield get_encoded_event({"event": "end", "id": email.id})
         except asyncio.CancelledError:
             # client has disconnected, perform cleanup here
             print("client disconnected")

@@ -22,15 +22,21 @@ import {
   PageActions,
   Spinner,
   RangeSlider,
+  ButtonGroup,
 } from "@shopify/polaris";
-import { ImageIcon } from "@shopify/polaris-icons";
+import {
+  ImageIcon,
+  ClipboardIcon,
+  MagicIcon,
+  ThumbsDownIcon,
+} from "@shopify/polaris-icons";
 
-import db from "/app/db.server";
 import {
   getEmailGenerator,
   validateEmailGenerator,
   upsertEmailGenerator,
-  getEmail,
+  rateEmail,
+  deleteGenerator,
 } from "/app/models/EmailGenerator.server";
 
 export async function loader({ request, params }) {
@@ -51,7 +57,6 @@ export async function loader({ request, params }) {
   const generator = await getEmailGenerator(id, admin.graphql);
   return json({
     generator,
-    email: await getEmail(generator.shop, id),
     ...data,
   });
 }
@@ -69,8 +74,12 @@ export async function action({ request, params }) {
   };
 
   if (formData.action === "delete") {
-    await db.emailGenerator.delete({ where: { id: Number(params.id) } });
+    await deleteGenerator(Number(params.id));
     return redirect("/app");
+  }
+  if (formData.action === "rate") {
+    await rateEmail(shop, Number(formData.emailId), -1);
+    return redirect(`/app/generators/${params.id}`);
   }
 
   const errors = validateEmailGenerator(data);
@@ -85,14 +94,17 @@ export async function action({ request, params }) {
 export default function EmailGeneratorForm() {
   const errors = useActionData()?.errors || {};
 
-  const { generator, email, baseUrl } = useLoaderData();
+  const { generator, baseUrl } = useLoaderData();
   const [formState, setFormState] = useState(generator);
   const [cleanFormState, setCleanFormState] = useState(generator);
   const [isDirty, setIsDirty] = useState(false);
+  const email = generator.Email.length > 0 ? generator.Email[0] : null;
   const [message, setMessage] = useState(email ? email.text : "");
+  const [emailId, setEmailId] = useState(email ? email.id : null);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialMount, setIsInitialMount] = useState(true);
+  const [copyButtonText, setCopyButtonText] = useState("Copy");
   const eventSourceRef = useRef(null);
 
   const nav = useNavigation();
@@ -140,6 +152,7 @@ export default function EmailGeneratorForm() {
           eventSource.close();
           setIsConnected(false);
           eventSourceRef.current = null;
+          setEmailId(data.id);
         } else {
           setIsLoading(false);
           setMessage((prevMessage) => prevMessage + data.message);
@@ -161,7 +174,7 @@ export default function EmailGeneratorForm() {
     eventSourceRef.current?.close();
     eventSourceRef.current = null;
     setIsConnected(false);
-    setMessage(email ? email.text : "");
+    setMessage("");
   }
 
   function connect() {
@@ -188,6 +201,14 @@ export default function EmailGeneratorForm() {
     disconnect();
   }
 
+  function handleRate() {
+    const data = {
+      emailId: emailId,
+      action: "rate",
+    };
+    submit(data, { method: "post" });
+  }
+
   useEffect(() => {
     if (!isInitialMount) {
       if (!isSaving && !isDeleting) {
@@ -212,6 +233,15 @@ export default function EmailGeneratorForm() {
     },
     [formState],
   );
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(message).then(() => {
+      setCopyButtonText("Copied");
+      setTimeout(() => {
+        setCopyButtonText("Copy");
+      }, 1000);
+    });
+  };
 
   return (
     <Page>
@@ -304,9 +334,25 @@ export default function EmailGeneratorForm() {
                     Generated Email
                   </Text>
                   <>
-                    <Button variant="primary" onClick={toggleConnection}>
-                      {isConnected ? "Stop generating" : "Generate"}
-                    </Button>
+                    <ButtonGroup>
+                      <Button
+                        icon={MagicIcon}
+                        variant="primary"
+                        onClick={toggleConnection}
+                      >
+                        {isConnected ? "Stop generating" : "Generate"}
+                      </Button>
+                      <Button icon={ClipboardIcon} onClick={handleCopy}>
+                        {copyButtonText}
+                      </Button>
+                      <Button
+                        icon={ThumbsDownIcon}
+                        disabled={isConnected}
+                        onClick={handleRate}
+                      >
+                        Bad
+                      </Button>
+                    </ButtonGroup>
                     {isConnected && isLoading && (
                       <Spinner accessibilityLabel="Loading stream data" />
                     )}

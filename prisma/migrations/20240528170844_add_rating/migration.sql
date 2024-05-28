@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Email" ADD COLUMN     "rating" INTEGER NOT NULL DEFAULT 0;

@@ -2,7 +2,16 @@ import { getQueue } from "./bull";
 import db from "/app/db.server";
 
 export async function getEmailGenerator(id, graphql) {
-  const generator = await db.emailGenerator.findFirstOrThrow({ where: { id } });
+  const generator = await db.emailGenerator.findFirstOrThrow({
+    where: { id },
+    include: {
+      Email: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+  });
   return supplementGenerator(generator, graphql);
 }
 
@@ -70,6 +79,25 @@ export async function getEmail(shop, id) {
     : null;
 }
 
+export async function deleteGenerator(id) {
+  return await db.emailGenerator.delete({
+    where: { id: id },
+  });
+}
+
+export async function rateEmail(shop, id, rating) {
+  console.log("rateEmail", shop, id, rating);
+  return await db.email.update({
+    where: {
+      id: id,
+      shop: shop,
+    },
+    data: {
+      rating: -1,
+    },
+  });
+}
+
 export async function upsertEmailGenerator(id, data, graphql) {
   const product = await supplementGenerator(data, graphql);
   data.productDescription = product.productDescription;
@@ -79,9 +107,6 @@ export async function upsertEmailGenerator(id, data, graphql) {
   const generator = await db.emailGenerator.update({
     where: { id: Number(id) },
     data,
-  });
-  await db.email.deleteMany({
-    where: { emailGeneratorId: generator.id },
   });
   return generator;
 }

@@ -43,11 +43,7 @@ async def get_email_generator(db, id):
     return await db.emailgenerator.find_first(where={"id": id})
 
 
-async def save_email(db, name, html, text, email_generator, delete_existing=True):
-    if delete_existing:
-        await db.email.delete_many(
-            where={"shop": email_generator.shop, "emailGeneratorId": email_generator.id}
-        )
+async def save_email(db, name, html, text, email_generator):
     return await db.email.create(
         data={
             "shop": email_generator.shop,

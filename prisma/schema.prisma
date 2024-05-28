@@ -69,6 +69,7 @@ model Email {
   createdAt        DateTime        @default(now())
   emailGeneratorId Int?
   emailGenerator   EmailGenerator? @relation(fields: [emailGeneratorId], references: [id])
+  rating           Int             @default(0)
 }
 
 model Settings {
