@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://pipe-desire-paris-carbon.trycloudflare.com"
+application_url = "https://shipment-reno-dsc-item.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://pipe-desire-paris-carbon.trycloudflare.com/auth/callback",
-  "https://pipe-desire-paris-carbon.trycloudflare.com/auth/shopify/callback",
-  "https://pipe-desire-paris-carbon.trycloudflare.com/api/auth/callback"
+  "https://shipment-reno-dsc-item.trycloudflare.com/auth/callback",
+  "https://shipment-reno-dsc-item.trycloudflare.com/auth/shopify/callback",
+  "https://shipment-reno-dsc-item.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

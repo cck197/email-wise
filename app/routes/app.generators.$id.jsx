@@ -92,6 +92,7 @@ export default function EmailGeneratorForm() {
   const [message, setMessage] = useState(email ? email.text : "");
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialMount, setIsInitialMount] = useState(true);
   const eventSourceRef = useRef(null);
 
   const nav = useNavigation();
@@ -188,9 +189,14 @@ export default function EmailGeneratorForm() {
   }
 
   useEffect(() => {
-    if (!isSaving && !isDeleting) {
-      connect();
+    if (!isInitialMount) {
+      if (!isSaving && !isDeleting) {
+        connect();
+      }
+    } else {
+      setIsInitialMount(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSaving, isDeleting]);
 
   const handleRangeSliderChange = useCallback(
