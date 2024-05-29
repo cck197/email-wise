@@ -29,9 +29,13 @@ import {
   saveSettings,
   getSettings,
 } from "/app/models/EmailGenerator.server";
+import { hasActiveSubscription } from "../models/Subscription.server";
 
 export async function loader({ request }) {
-  const { session } = await authenticate.admin(request);
+  const { session, redirect, admin } = await authenticate.admin(request);
+  if (!(await hasActiveSubscription(admin.graphql))) {
+    return redirect("/app/billing");
+  }
   const settings = await getSettings(session.shop);
   const lLMProviders = await getLLMProviders();
   const emailProviders = await getEmailProviders();

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   useActionData,
   useLoaderData,
@@ -38,9 +38,13 @@ import {
   rateEmail,
   deleteGenerator,
 } from "/app/models/EmailGenerator.server";
+import { hasActiveSubscription } from "../models/Subscription.server";
 
 export async function loader({ request, params }) {
-  const { admin } = await authenticate.admin(request);
+  const { admin, redirect } = await authenticate.admin(request);
+  if (!(await hasActiveSubscription(admin.graphql))) {
+    return redirect("/app/billing");
+  }
   const data = {
     baseUrl: process.env.SSE_URL,
   };
@@ -62,7 +66,7 @@ export async function loader({ request, params }) {
 }
 
 export async function action({ request, params }) {
-  const { session, admin } = await authenticate.admin(request);
+  const { session, admin, redirect } = await authenticate.admin(request);
   const { shop } = session;
 
   const formData = Object.fromEntries(await request.formData());

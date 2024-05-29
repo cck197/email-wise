@@ -22,9 +22,7 @@ import { hasActiveSubscription } from "../models/Subscription.server";
 
 export async function loader({ request }) {
   const { admin, session, redirect } = await authenticate.admin(request);
-  const hasActiveSubscription_ = await hasActiveSubscription(admin.graphql);
-  console.log("hasActiveSubscription", hasActiveSubscription_);
-  if (!hasActiveSubscription_) {
+  if (!(await hasActiveSubscription(admin.graphql))) {
     return redirect("/app/billing");
   }
   const settings = await getSettings(session.shop);
