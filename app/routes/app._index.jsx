@@ -3,6 +3,7 @@ import { useLoaderData, Link, useNavigate } from "@remix-run/react";
 import { authenticate } from "/app/shopify.server";
 import {
   Card,
+  EmptyState,
   Layout,
   Page,
   IndexTable,
@@ -49,8 +50,8 @@ function truncate(str, { length = 25 } = {}) {
 const EmailGeneratorTable = ({ generators }) => (
   <IndexTable
     resourceName={{
-      singular: "Email Generator",
-      plural: "Email Generators",
+      singular: "Email",
+      plural: "Emails",
     }}
     itemCount={generators.length}
     headings={[
@@ -60,6 +61,10 @@ const EmailGeneratorTable = ({ generators }) => (
       { title: "Date created" },
     ]}
     selectable={false}
+    pagination={{
+      hasNext: true,
+      onNext: () => {},
+    }}
   >
     {generators.map((generator) => (
       <EmailGeneratorTableRow key={generator.id} generator={generator} />
@@ -99,6 +104,17 @@ const EmailGeneratorTableRow = ({ generator }) => (
   </IndexTable.Row>
 );
 
+const EmptyGeneratorState = ({ onAction }) => (
+  <EmptyState
+    heading="Generate sales emails for your products"
+    action={{
+      content: "Generate Email",
+      onAction,
+    }}
+    image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+  ></EmptyState>
+);
+
 export default function Index() {
   const { generators } = useLoaderData();
   const navigation = useNavigate();
@@ -106,17 +122,25 @@ export default function Index() {
   return (
     <Page>
       <ui-title-bar title="Emails">
-        <button
-          variant="primary"
-          onClick={() => navigation("/app/generators/new")}
-        >
-          Generate Email
-        </button>
+        {generators.length > 0 && (
+          <button
+            variant="primary"
+            onClick={() => navigation("/app/generators/new")}
+          >
+            Generate Email
+          </button>
+        )}
       </ui-title-bar>
       <Layout>
         <Layout.Section>
           <Card padding="0">
-            <EmailGeneratorTable generators={generators} />
+            {generators.length === 0 ? (
+              <EmptyGeneratorState
+                onAction={() => navigation("generators/new")}
+              />
+            ) : (
+              <EmailGeneratorTable generators={generators} />
+            )}
           </Card>
         </Layout.Section>
       </Layout>

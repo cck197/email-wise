@@ -138,7 +138,6 @@ export default function EmailGeneratorForm() {
     if (!isConnected) {
       return;
     }
-
     const fullUrl = `${baseUrl}/email/${generator.id}`;
 
     if (!eventSourceRef.current) {

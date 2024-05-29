@@ -77,14 +77,16 @@ def get_encoded_event(data):
     return ServerSentEvent(json.dumps(data)).encode()
 
 
-@app.get("/sse/email/<id>")
-async def sse_email(id):
+@app.get("/sse/email/<int:generator_id>")
+async def sse_email(generator_id):
 
     async def send_email_events():
         db = get_client()
-        email_generator = await get_email_generator(db, int(id))
+        email_generator = await get_email_generator(db, generator_id)
         if email_generator is None:
-            yield get_encoded_event({"error": f"email generator {id} not found"})
+            yield get_encoded_event(
+                {"error": f"email generator {generator_id} not found"}
+            )
             return
         (chain, input) = await generate_email(db, email_generator)
         try:
