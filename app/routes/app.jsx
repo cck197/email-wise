@@ -17,19 +17,23 @@ export const loader = async ({ request }) => {
   });
 };
 
+const EmailWiseNavMenu = () => {
+  return (
+    <NavMenu>
+      <a href="/app/generators/new">New</a>
+      <a href="/app">Previous</a>
+      <a href="/app/settings">Settings</a>
+      <a href="/app/billing">Billing</a>
+    </NavMenu>
+  );
+};
+
 export default function App() {
   const { apiKey } = useLoaderData();
 
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
-      <NavMenu>
-        <a href="/app" rel="home">
-          Home
-        </a>
-        <a href="/app/generators/new">Generate</a>
-        <a href="/app/settings">Settings</a>
-        <a href="/app/billing">Billing</a>
-      </NavMenu>
+      <EmailWiseNavMenu />
       <Outlet />
     </AppProvider>
   );
