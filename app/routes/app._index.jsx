@@ -1,9 +1,8 @@
 import { json } from "@remix-run/node";
-import { useLoaderData, Link, useNavigate } from "@remix-run/react";
+import { useLoaderData, Link } from "@remix-run/react";
 import { authenticate } from "/app/shopify.server";
 import {
   Card,
-  EmptyState,
   Layout,
   Page,
   IndexTable,
@@ -30,7 +29,7 @@ export async function loader({ request }) {
     return redirect("/app/settings");
   }
   const generators = await getEmailGenerators(session.shop, admin.graphql);
-  if (!generators) {
+  if (generators.length === 0) {
     return redirect("/app/generators/new");
   }
 
@@ -102,43 +101,16 @@ const EmailGeneratorTableRow = ({ generator }) => (
   </IndexTable.Row>
 );
 
-const EmptyGeneratorState = ({ onAction }) => (
-  <EmptyState
-    heading="Generate sales emails for your products"
-    action={{
-      content: "Generate Email",
-      onAction,
-    }}
-    image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-  ></EmptyState>
-);
-
 export default function Index() {
   const { generators } = useLoaderData();
-  const navigation = useNavigate();
 
   return (
     <Page>
-      <ui-title-bar title="Emails">
-        {generators.length > 0 && (
-          <button
-            variant="primary"
-            onClick={() => navigation("/app/generators/new")}
-          >
-            Generate Email
-          </button>
-        )}
-      </ui-title-bar>
+      <ui-title-bar title="Emails"></ui-title-bar>
       <Layout>
         <Layout.Section>
           <Card padding="0">
-            {generators.length === 0 ? (
-              <EmptyGeneratorState
-                onAction={() => navigation("generators/new")}
-              />
-            ) : (
-              <EmailGeneratorTable generators={generators} />
-            )}
+            <EmailGeneratorTable generators={generators} />
           </Card>
         </Layout.Section>
       </Layout>
