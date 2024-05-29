@@ -1,16 +1,20 @@
 import { json } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
+import { Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { authenticate } from "../shopify.server";
+
+import { NavMenu } from "@shopify/app-bridge-react";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
 
-  return json({ apiKey: process.env.SHOPIFY_API_KEY || "" });
+  return json({
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+  });
 };
 
 export default function App() {
@@ -18,13 +22,14 @@ export default function App() {
 
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
-      <ui-nav-menu>
-        <Link to="/app" rel="home">
+      <NavMenu>
+        <a href="/app" rel="home">
           Home
-        </Link>
-        <Link to="/app/settings">Settings</Link>
-        {/*<Link to="/app/stream">Stream</Link>*/}
-      </ui-nav-menu>
+        </a>
+        <a href="/app/generators/new">Generate</a>
+        <a href="/app/settings">Settings</a>
+        <a href="/app/billing">Billing</a>
+      </NavMenu>
       <Outlet />
     </AppProvider>
   );

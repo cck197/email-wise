@@ -1,4 +1,10 @@
 import { useState, useCallback, useEffect } from "react";
+import {
+  useActionData,
+  useLoaderData,
+  useNavigation,
+  useSubmit,
+} from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { authenticate } from "/app/shopify.server";
 import {
@@ -23,12 +29,6 @@ import {
   saveSettings,
   getSettings,
 } from "/app/models/EmailGenerator.server";
-import {
-  useActionData,
-  useLoaderData,
-  useNavigation,
-  useSubmit,
-} from "@remix-run/react";
 
 export async function loader({ request }) {
   const { session } = await authenticate.admin(request);
@@ -139,108 +139,134 @@ export default function SettingsForm() {
     setIsDirty(JSON.stringify(formState) !== JSON.stringify(cleanFormState));
   }, [formState, cleanFormState]);
 
+  const isNew = settings.id === "new";
+
   return (
     <Page>
-      <ui-title-bar
-        title={settings.id === "new" ? "Add Settings" : "Edit Settings"}
-      ></ui-title-bar>
+      <ui-title-bar title={"Settings"}></ui-title-bar>
       <Layout>
-        <BlockStack gap={{ xs: "800", sm: "400" }}>
-          {lLMKeyResult?.success && (
-            <Banner tone="success">Successfully updated AI Integration</Banner>
-          )}
-          {lLMKeyResult?.error && (
-            <Banner tone="critical">{lLMKeyResult.error}</Banner>
-          )}
-          {emailKeyResult?.success && (
-            <Banner tone="success">{emailKeyResult.success}</Banner>
-          )}
-          {emailKeyResult?.error && (
-            <Banner tone="critical">{emailKeyResult.error}</Banner>
-          )}
-          <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
-            <Box
-              as="section"
-              paddingInlineStart={{ xs: 400, sm: 0 }}
-              paddingInlineEnd={{ xs: 400, sm: 0 }}
-            >
-              <BlockStack gap="400">
-                <Text as="h3" variant="headingMd">
-                  Email Integration
-                </Text>
-                <Text as="p" variant="bodyMd">
-                  Adding an email integration enables EmailWise to create new
-                  emails that match your existing campaigns in tone, mood,
-                  style, syntax, and perspective.
-                </Text>
-              </BlockStack>
-            </Box>
-            <Card roundedAbove="sm">
-              <BlockStack gap="400">
-                <Select
-                  label="Select your provider"
-                  options={emailProviders}
-                  onChange={(emailProviderId) =>
-                    setFormState({ ...formState, emailProviderId })
-                  }
-                  value={formState?.emailProviderId?.toString()}
-                  error={errors.emailProviderId}
-                />
-                <TextField
-                  id="emailKey"
-                  helpText=""
-                  label="Private API key"
-                  autoComplete="off"
-                  value={formState?.emailKey}
-                  onChange={(emailKey) =>
-                    setFormState({ ...formState, emailKey })
-                  }
-                  error={errors.emailKey || emailKeyResult?.error}
-                />
-              </BlockStack>
-            </Card>
-          </InlineGrid>
-          {smUp ? <Divider /> : null}
-          <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
-            <Box
-              as="section"
-              paddingInlineStart={{ xs: 400, sm: 0 }}
-              paddingInlineEnd={{ xs: 400, sm: 0 }}
-            >
-              <BlockStack gap="400">
-                <Text as="h3" variant="headingMd">
-                  AI Integration
-                </Text>
-                <Text as="p" variant="bodyMd">
-                  Add an AI integration to enable email generation using your
-                  provider of choice.
-                </Text>
-              </BlockStack>
-            </Box>
-            <Card roundedAbove="sm">
-              <BlockStack gap="400">
-                <Select
-                  label="Select your provider"
-                  options={lLMProviders}
-                  onChange={(value) =>
-                    handleProviderChange(value, setFormState, "lLMProviderId")
-                  }
-                  value={formState?.lLMProviderId?.toString()}
-                  error={errors.lLMProviderId}
-                />
-                <TextField
-                  id="lLMKey"
-                  helpText=""
-                  label="Private API key"
-                  autoComplete="off"
-                  value={formState?.lLMKey}
-                  onChange={(lLMKey) => setFormState({ ...formState, lLMKey })}
-                  error={errors.lLMKey || lLMKeyResult?.error}
-                />
-              </BlockStack>
-            </Card>
-          </InlineGrid>
-        </BlockStack>
+        {isNew && (
+          <>
+            <Layout.Section>
+              <Card>
+                <BlockStack gap="500">
+                  <BlockStack gap="200">
+                    <Text as="h2" variant="headingMd">
+                      Let&apos;s do this!
+                    </Text>
+                    <Text as="p" variant="bodyMd">
+                      To get started, connect your email provider and AI
+                      integration.
+                    </Text>
+                  </BlockStack>
+                </BlockStack>
+              </Card>
+            </Layout.Section>
+            <div style={{ marginTop: "15px" }} />
+          </>
+        )}
+        <Layout.Section>
+          <BlockStack gap={{ xs: "800", sm: "400" }}>
+            {lLMKeyResult?.success && (
+              <Banner tone="success">
+                Successfully updated AI Integration
+              </Banner>
+            )}
+            {lLMKeyResult?.error && (
+              <Banner tone="critical">{lLMKeyResult.error}</Banner>
+            )}
+            {emailKeyResult?.success && (
+              <Banner tone="success">{emailKeyResult.success}</Banner>
+            )}
+            {emailKeyResult?.error && (
+              <Banner tone="critical">{emailKeyResult.error}</Banner>
+            )}
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Email Integration
+                  </Text>
+                  <Text as="p" variant="bodyMd">
+                    Adding an email integration enables EmailWise to create new
+                    emails that match your existing campaigns in tone, mood,
+                    style, syntax, and perspective.
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
+                <BlockStack gap="400">
+                  <Select
+                    label="Select your provider"
+                    options={emailProviders}
+                    onChange={(emailProviderId) =>
+                      setFormState({ ...formState, emailProviderId })
+                    }
+                    value={formState?.emailProviderId?.toString()}
+                    error={errors.emailProviderId}
+                  />
+                  <TextField
+                    id="emailKey"
+                    helpText=""
+                    label="Private API key"
+                    autoComplete="off"
+                    value={formState?.emailKey}
+                    onChange={(emailKey) =>
+                      setFormState({ ...formState, emailKey })
+                    }
+                    error={errors.emailKey || emailKeyResult?.error}
+                  />
+                </BlockStack>
+              </Card>
+            </InlineGrid>
+            {smUp ? <Divider /> : null}
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    AI Integration
+                  </Text>
+                  <Text as="p" variant="bodyMd">
+                    Add an AI integration to enable email generation using your
+                    provider of choice.
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
+                <BlockStack gap="400">
+                  <Select
+                    label="Select your provider"
+                    options={lLMProviders}
+                    onChange={(value) =>
+                      handleProviderChange(value, setFormState, "lLMProviderId")
+                    }
+                    value={formState?.lLMProviderId?.toString()}
+                    error={errors.lLMProviderId}
+                  />
+                  <TextField
+                    id="lLMKey"
+                    helpText=""
+                    label="Private API key"
+                    autoComplete="off"
+                    value={formState?.lLMKey}
+                    onChange={(lLMKey) =>
+                      setFormState({ ...formState, lLMKey })
+                    }
+                    error={errors.lLMKey || lLMKeyResult?.error}
+                  />
+                </BlockStack>
+              </Card>
+            </InlineGrid>
+          </BlockStack>
+        </Layout.Section>
         <Layout.Section>
           <PageActions
             primaryAction={{

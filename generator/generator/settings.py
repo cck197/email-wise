@@ -6,13 +6,16 @@ from generator.klaviyo import db_import_from_klaviyo
 
 async def email_settings_hook(settings):
     print(f"email settings changed: {settings=}")
+    api_key = settings.get("emailKey")
+    if not api_key:
+        return None
     provider_map = {"Klaviyo": db_import_from_klaviyo}
     db = get_client()
     provider_name = settings["emailProvider"]["name"]
     func = provider_map.get(provider_name)
     if func is None:
         raise Exception(f"Email provider {provider_name} not found")
-    return await func(db, settings["shop"], api_key=settings["emailKey"])
+    return await func(db, settings["shop"], api_key=api_key)
 
 
 async def llm_settings_hook(settings):
@@ -24,9 +27,9 @@ async def llm_settings_hook(settings):
 
 async def save_settings_hook(old, new):
     result = {}
-    if old["emailKey"] != new["emailKey"]:
+    if old is None or old["emailKey"] != new["emailKey"]:
         result["emailKey"] = await email_settings_hook(new)
-    if old["lLMKey"] != new["lLMKey"]:
+    if old is None or old["lLMKey"] != new["lLMKey"]:
         result["lLMKey"] = await llm_settings_hook(new)
     print(f"settings saved: {result=}")
     return result

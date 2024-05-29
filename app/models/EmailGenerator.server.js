@@ -192,6 +192,7 @@ export function validateEmailGenerator(data) {
 export function validateSettings(data) {
   const errors = {};
 
+  /*
   if (!data.emailProviderId) {
     errors.emailProviderId = "Email provider is required";
   }
@@ -199,6 +200,7 @@ export function validateSettings(data) {
   if (!data.emailKey) {
     errors.emailKey = "Email private key is required";
   }
+  */
 
   if (!data.lLMProviderId) {
     errors.lLMProviderId = "AI provider is required";

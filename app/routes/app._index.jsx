@@ -3,7 +3,6 @@ import { useLoaderData, Link, useNavigate } from "@remix-run/react";
 import { authenticate } from "/app/shopify.server";
 import {
   Card,
-  EmptyState,
   Layout,
   Page,
   IndexTable,
@@ -18,15 +17,26 @@ import {
   getEmailGenerators,
   getSettings,
 } from "/app/models/EmailGenerator.server";
+import { hasActiveSubscription } from "../models/Subscription.server";
 
 export async function loader({ request }) {
-  const { admin, session } = await authenticate.admin(request);
-  const generators = await getEmailGenerators(session.shop, admin.graphql);
+  const { admin, session, redirect } = await authenticate.admin(request);
+  const hasActiveSubscription_ = await hasActiveSubscription(admin.graphql);
+  console.log("hasActiveSubscription", hasActiveSubscription_);
+  if (!hasActiveSubscription_) {
+    return redirect("/app/billing");
+  }
   const settings = await getSettings(session.shop);
+  if (!settings) {
+    return redirect("/app/settings");
+  }
+  const generators = await getEmailGenerators(session.shop, admin.graphql);
+  if (!generators) {
+    return redirect("/app/generators/new");
+  }
 
   return json({
     generators,
-    settings,
   });
 }
 
@@ -89,63 +99,24 @@ const EmailGeneratorTableRow = ({ generator }) => (
   </IndexTable.Row>
 );
 
-const EmptyGeneratorState = ({ onAction, label }) => (
-  <EmptyState
-    heading="Generate sales emails for your product"
-    action={{
-      content: label,
-      onAction,
-    }}
-    image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-  >
-    <p>Use AI to generate more revenue per email.</p>
-  </EmptyState>
-);
-
 export default function Index() {
-  const { generators, settings } = useLoaderData();
-  const navigate = useNavigate();
-
-  if (!settings) {
-    return (
-      <Page>
-        <Layout>
-          <Layout.Section>
-            <Card padding="0">
-              <EmptyGeneratorState
-                onAction={() => navigate("/app/settings")}
-                label={
-                  "Click here to check a couple of settings to get started"
-                }
-              />
-            </Card>
-          </Layout.Section>
-        </Layout>
-      </Page>
-    );
-  }
+  const { generators } = useLoaderData();
+  const navigation = useNavigate();
 
   return (
     <Page>
       <ui-title-bar title="Emails">
         <button
           variant="primary"
-          onClick={() => navigate("/app/generators/new")}
+          onClick={() => navigation("/app/generators/new")}
         >
-          Create Email
+          Generate Email
         </button>
       </ui-title-bar>
       <Layout>
         <Layout.Section>
           <Card padding="0">
-            {generators.length === 0 ? (
-              <EmptyGeneratorState
-                onAction={() => navigate("generators/new")}
-                label={"Create Email"}
-              />
-            ) : (
-              <EmailGeneratorTable generators={generators} />
-            )}
+            <EmailGeneratorTable generators={generators} />
           </Card>
         </Layout.Section>
       </Layout>

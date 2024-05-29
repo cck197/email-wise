@@ -98,7 +98,7 @@ export default function EmailGeneratorForm() {
   const [formState, setFormState] = useState(generator);
   const [cleanFormState, setCleanFormState] = useState(generator);
   const [isDirty, setIsDirty] = useState(false);
-  const email = generator.Email.length > 0 ? generator.Email[0] : null;
+  const email = generator.Email?.length > 0 ? generator.Email[0] : null;
   const [message, setMessage] = useState(email ? email.text : "");
   const [emailId, setEmailId] = useState(email ? email.id : null);
   const [isConnected, setIsConnected] = useState(false);
@@ -245,9 +245,6 @@ export default function EmailGeneratorForm() {
 
   return (
     <Page>
-      <ui-title-bar
-        title={generator.id ? "Edit Email" : "Create New Email"}
-      ></ui-title-bar>
       <Layout>
         <Layout.Section>
           <BlockStack gap="500">
