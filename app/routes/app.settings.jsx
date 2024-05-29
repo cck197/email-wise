@@ -56,22 +56,16 @@ export async function action({ request }) {
   const { shop } = session;
 
   const formData = Object.fromEntries(await request.formData());
-  const { emailProviderId, lLMProviderId, emailKey, lLMKey } = formData;
+  const { emailProviderId, lLMProviderId } = formData;
 
   const data = {
-    shop,
-    emailProviderId: parseInt(emailProviderId),
-    lLMProviderId: parseInt(lLMProviderId),
-    emailKey,
-    lLMKey,
-  };
-
-  const errors = validateSettings({
     ...formData,
     shop,
     emailProviderId: parseInt(emailProviderId),
     lLMProviderId: parseInt(lLMProviderId),
-  });
+  };
+
+  const errors = validateSettings(data);
   if (errors) {
     return json({ errors }, { status: 422 });
   }
@@ -129,6 +123,7 @@ export default function SettingsForm() {
       lLMProviderId: formState?.lLMProviderId || lLMProviders[0].value,
       emailKey: formState?.emailKey,
       lLMKey: formState?.lLMKey,
+      brand: formState?.brand,
     };
 
     setCleanFormState({ ...formState });
@@ -155,8 +150,8 @@ export default function SettingsForm() {
                       Let&apos;s do this!
                     </Text>
                     <Text as="p" variant="bodyMd">
-                      To get started, connect your email provider and AI
-                      integration.
+                      Tell us a bit about your brand and connect your email
+                      provider and AI integration to get started.
                     </Text>
                   </BlockStack>
                 </BlockStack>
@@ -181,6 +176,39 @@ export default function SettingsForm() {
             {emailKeyResult?.error && (
               <Banner tone="critical">{emailKeyResult.error}</Banner>
             )}
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Brand
+                  </Text>
+                  <Text as="p" variant="bodyMd">
+                    Describe your fundamental purpose, cause or belief system
+                    that inspires employees and resonates with customers so
+                    EmailWise can align.
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
+                <BlockStack gap="400">
+                  <TextField
+                    id="brand"
+                    label="About your brand"
+                    helpText=""
+                    autoComplete="off"
+                    multiline={4}
+                    value={formState?.brand}
+                    onChange={(brand) => setFormState({ ...formState, brand })}
+                    error={errors.brand}
+                  />
+                </BlockStack>
+              </Card>
+            </InlineGrid>
+            {smUp ? <Divider /> : null}
             <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
               <Box
                 as="section"

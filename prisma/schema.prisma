@@ -77,9 +77,10 @@ model Settings {
   shop            String
   emailProviderId Int
   emailProvider   EmailProvider? @relation(fields: [emailProviderId], references: [id])
-  emailKey        String
+  emailKey        String?
   lLMProviderId   Int
   lLMProvider     LLMProvider?   @relation(fields: [lLMProviderId], references: [id])
   lLMKey          String
+  brand           String?
   createdAt       DateTime       @default(now())
 }

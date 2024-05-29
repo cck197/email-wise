@@ -47,9 +47,12 @@ The degree of likeness is a five point scale from 1 to 5:
 4: Quite a bit
 5: Very much
  %LIKENESS```{likeness}```
-Here are the style qualities for the text:
-
 {tone}"""
+
+BRAND_PROMPT = """
+Take into consideration the company brand listed below.
+%BRAND%```{brand}```
+"""
 
 SALES_PROMPT = """
 Your job today is to help an e-commerce store owner write an email that results in as many sales as possible.
@@ -130,6 +133,8 @@ Important Reminders:
 5.  If possible, create a fictional story with a named character that addresses the pains/problems of the reader that the product will eventually solve.
 6.  As much as possible, "hide the ball" so that it's not obvious at first that you're emailing about a product/service, either in the subject line or at the beginning of the email.
 7.  For at least 1 of the subject lines, try to add some urgency, and for at least 1 of the subject lines, add a "curious" parenthetical at the end, and for at least 1 of the subject lines, add an emoji.
+
+{brand}
 
 One final request: please note the following in the email:
 1.  Which phrases/sentences should be linked.

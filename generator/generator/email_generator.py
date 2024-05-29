@@ -4,12 +4,13 @@ import redis
 from langchain.globals import set_llm_cache
 from langchain_anthropic import ChatAnthropic
 from langchain_community.cache import RedisCache
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
 
 from .prompts import (
     AVOID_EXTRA_CRUFT,
+    BRAND_PROMPT,
     SALES_PROMPT,
     SALT_PROMPT,
     STYLE_ATTRS,
@@ -80,32 +81,33 @@ def get_email_tone(email, chat=default_chat):
     return chain.invoke({"text": f"```{cleaned_email}```\n{STYLE_ATTRS}"})
 
 
-def get_product_copy_chain(tone, prod_desc, salt, likeness, chat=default_chat):
+def get_product_copy_chain(tone, brand, prod_desc, salt, likeness, chat=default_chat):
     prompt = ChatPromptTemplate.from_messages(
         [("system", SYSTEM_PROMPT), ("human", "{text}")]
     )
     chain = prompt | chat
 
+    brand = (
+        PromptTemplate.from_template(BRAND_PROMPT).format(brand=brand) if brand else ""
+    )
+
     tone = (
-        ChatPromptTemplate.from_template(TONE_PROMPT).format(
-            likeness=likeness, tone=tone
-        )
+        PromptTemplate.from_template(TONE_PROMPT).format(likeness=likeness, tone=tone)
         if tone
         else ""
     )
 
-    salt = (
-        ChatPromptTemplate.from_template(SALT_PROMPT).format(salt=salt) if salt else ""
-    )
+    salt = PromptTemplate.from_template(SALT_PROMPT).format(salt=salt) if salt else ""
 
     return (
         chain,
         {
-            "text": ChatPromptTemplate.from_template(SALES_PROMPT).format(
+            "text": PromptTemplate.from_template(SALES_PROMPT).format(
                 avoid_extra_cruft=AVOID_EXTRA_CRUFT,
                 salt=salt,
                 prod_desc=prod_desc,
                 tone=tone,
+                brand=brand,
             )
         },
     )
@@ -119,6 +121,7 @@ async def generate_email(db, email_generator):
     tone = get_email_tone(sample_email, chat=chat).content if sample_email else ""
     return get_product_copy_chain(
         tone,
+        settings.brand,
         email_generator.productDescription,
         email_generator.salt,
         email_generator.likeness,
