@@ -11,6 +11,7 @@ from quart_cors import cors
 from generator.db import connect, get_client
 
 from .sse import sse_bp
+from .webhook import webhook_bp
 
 app = Quart(__name__)
 
@@ -33,6 +34,7 @@ def get_cors_pattern():
 
 app = cors(app, allow_origin="*")
 app.register_blueprint(sse_bp, url_prefix="/sse")
+app.register_blueprint(webhook_bp, url_prefix="/webhook")
 
 
 @app.before_serving
