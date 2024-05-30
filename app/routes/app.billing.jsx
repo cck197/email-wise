@@ -43,7 +43,7 @@ export const action = async ({ request }) => {
     ...Object.fromEntries(await request.formData()),
   };
   const action = data.action;
-  const isTest = true; // TODO
+  const isTest = process.env.LIVE_BILLING !== "true"; // TODO
 
   if (!action) {
     return null;

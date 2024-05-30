@@ -342,7 +342,11 @@ export default function EmailGeneratorForm() {
                       >
                         {isConnected ? "Stop generating" : "Generate"}
                       </Button>
-                      <Button icon={ClipboardIcon} onClick={handleCopy}>
+                      <Button
+                        icon={ClipboardIcon}
+                        onClick={handleCopy}
+                        disabled={isConnected}
+                      >
                         {copyButtonText}
                       </Button>
                       <Button
