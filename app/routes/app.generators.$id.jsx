@@ -37,16 +37,22 @@ import {
   upsertEmailGenerator,
   rateEmail,
   deleteGenerator,
+  getSettings,
 } from "/app/models/EmailGenerator.server";
 import { hasActiveSubscription } from "../models/Subscription.server";
 
 export async function loader({ request, params }) {
-  const { admin, redirect } = await authenticate.admin(request);
+  const { admin, redirect, session } = await authenticate.admin(request);
   if (!(await hasActiveSubscription(admin.graphql))) {
     return redirect("/app/billing");
   }
+  const settings = await getSettings(session.shop);
+  if (!settings) {
+    return redirect("/app/settings");
+  }
   const data = {
     baseUrl: process.env.SSE_URL,
+    settings,
   };
 
   if (params.id === "new") {
@@ -98,7 +104,7 @@ export async function action({ request, params }) {
 export default function EmailGeneratorForm() {
   const errors = useActionData()?.errors || {};
 
-  const { generator, baseUrl } = useLoaderData();
+  const { generator, baseUrl, settings } = useLoaderData();
   const [formState, setFormState] = useState(generator);
   const [cleanFormState, setCleanFormState] = useState(generator);
   const [isDirty, setIsDirty] = useState(false);
@@ -293,24 +299,26 @@ export default function EmailGeneratorForm() {
                 <Text as={"h2"} variant="headingLg">
                   Customise
                 </Text>
-                <RangeSlider
-                  id="likeness"
-                  label="Style consistency"
-                  min={1}
-                  max={5}
-                  value={formState.likeness}
-                  onChange={handleRangeSliderChange}
-                  prefix={<p>Not at all like previous emails</p>}
-                  suffix={
-                    <p
-                      style={{
-                        textAlign: "right",
-                      }}
-                    >
-                      Very much like previous emails
-                    </p>
-                  }
-                />
+                {settings.emailKey && (
+                  <RangeSlider
+                    id="likeness"
+                    label="Style consistency"
+                    min={1}
+                    max={5}
+                    value={formState.likeness}
+                    onChange={handleRangeSliderChange}
+                    prefix={<p>Not at all like previous emails</p>}
+                    suffix={
+                      <p
+                        style={{
+                          textAlign: "right",
+                        }}
+                      >
+                        Very much like previous emails
+                      </p>
+                    }
+                  />
+                )}
                 <TextField
                   id="salt"
                   helpText="Anything you want to add to the email"
