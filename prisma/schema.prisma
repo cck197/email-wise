@@ -54,7 +54,8 @@ model EmailGenerator {
   productHandle      String
   productVariantId   String
   productDescription String
-  salt               String?
+  specials           String?
+  stories            String?
   likeness           Int      @default(3)
   createdAt          DateTime @default(now())
   Email              Email[]

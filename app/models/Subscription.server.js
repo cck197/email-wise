@@ -28,7 +28,7 @@ export async function getSubscriptionStatus(graphql) {
 export async function hasActiveSubscription(graphql) {
   const subscriptions = await getSubscriptionStatus(graphql);
   const { activeSubscriptions } = subscriptions.data.app.installation;
-  console.log("activeSubscriptions", activeSubscriptions);
+  // console.log("activeSubscriptions", activeSubscriptions);
   return (
     activeSubscriptions.length > 0 && activeSubscriptions[0].status === "ACTIVE"
   );

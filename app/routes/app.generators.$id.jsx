@@ -57,7 +57,7 @@ export async function loader({ request, params }) {
 
   if (params.id === "new") {
     return json({
-      generator: { id: null, salt: "", likeness: 3 },
+      generator: { id: null, specials: "", stories: "", likeness: 3 },
       email: null,
       ...data,
     });
@@ -202,7 +202,8 @@ export default function EmailGeneratorForm() {
       productId: formState.productId || "",
       productVariantId: formState.productVariantId || "",
       productHandle: formState.productHandle || "",
-      salt: formState.salt || "",
+      specials: formState.specials || "",
+      stories: formState.stories || "",
       likeness: formState.likeness,
     };
     setCleanFormState({ ...formState });
@@ -229,16 +230,9 @@ export default function EmailGeneratorForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSaving, isDeleting]);
 
-  const handleRangeSliderChange = useCallback(
-    function handleRangeSliderChange(value) {
-      setFormState({ ...formState, likeness: value });
-    },
-    [formState],
-  );
-
-  const handleSaltChange = useCallback(
-    function handleSaltChange(salt) {
-      setFormState({ ...formState, salt });
+  const handleFormChange = useCallback(
+    (key, value) => {
+      setFormState({ ...formState, [key]: value });
     },
     [formState],
   );
@@ -306,7 +300,7 @@ export default function EmailGeneratorForm() {
                     min={1}
                     max={5}
                     value={formState.likeness}
-                    onChange={handleRangeSliderChange}
+                    onChange={(value) => handleFormChange("likeness", value)}
                     prefix={<p>Not at all like previous emails</p>}
                     suffix={
                       <p
@@ -320,14 +314,26 @@ export default function EmailGeneratorForm() {
                   />
                 )}
                 <TextField
-                  id="salt"
-                  helpText="Anything you want to add to the email"
-                  label="salt"
+                  id="specials"
+                  helpText="Please list here any special deals (e.g., 30% off), holidays (e.g., Black Friday), or Special Events (e.g., Back in Stock) that you'd like the email to include"
+                  label="specials"
                   labelHidden
+                  multiline={3}
                   autoComplete="off"
-                  value={formState.salt}
-                  onChange={handleSaltChange}
-                  error={errors.salt}
+                  value={formState.specials}
+                  onChange={(value) => handleFormChange("specials", value)}
+                  error={errors.specials}
+                />
+                <TextField
+                  id="stories"
+                  helpText="Are there any particular stories, angles, problems, or benefits that you'd like the email to mention?"
+                  label="stories"
+                  labelHidden
+                  multiline={3}
+                  autoComplete="off"
+                  value={formState.stories}
+                  onChange={(value) => handleFormChange("stories", value)}
+                  error={errors.stories}
                 />
               </BlockStack>
             </Card>

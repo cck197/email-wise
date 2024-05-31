@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://exports-traveling-haven-codes.trycloudflare.com"
+application_url = "https://oclc-producing-queue-socket.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://exports-traveling-haven-codes.trycloudflare.com/auth/callback",
-  "https://exports-traveling-haven-codes.trycloudflare.com/auth/shopify/callback",
-  "https://exports-traveling-haven-codes.trycloudflare.com/api/auth/callback"
+  "https://oclc-producing-queue-socket.trycloudflare.com/auth/callback",
+  "https://oclc-producing-queue-socket.trycloudflare.com/auth/shopify/callback",
+  "https://oclc-producing-queue-socket.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

@@ -32,10 +32,16 @@ TONE = os.environ.get(
     "List the tone qualities for the text delimited by triple backticks below using the list.",
 )
 
-SALT_PROMPT = """
-Pay very close attention to the salt below delimited by triple backticks for additional instruction. These details are crucial and MUST be included in the email.
+SPECIALS_PROMPT = """
+Pay very close attention to the special deals or events below delimited by triple backticks for additional instruction. These details are crucial and MUST be included in the email.
 
-%SALT%```{salt}```
+%SPECIALS%```{specials}```
+"""
+
+STORIES_PROMPT = """
+Pay very close attention to the angle, story, problem to address, or benefit to cover below delimited by triple backticks for additional instruction. These details are crucial and MUST be included in the email.
+
+%STORIES%```{stories}```
 """
 
 TONE_PROMPT = """
@@ -121,8 +127,9 @@ Your first goal is to get readers to open the email, and your second goal is to 
 Please write a brief (no more than 750 words) sales email for the product delimited by triple backticks below.
 
 Please start the email with 3 possible catchy subject lines, each marked with "[Subject Line #1]", "[Subject Line #2]", or "[Subject Line #3]".
-{salt}
 %PROD%```{prod_desc}```
+{specials}
+{stories}
 {tone}
 Important Reminders:
 

@@ -12,7 +12,8 @@ from .prompts import (
     AVOID_EXTRA_CRUFT,
     BRAND_PROMPT,
     SALES_PROMPT,
-    SALT_PROMPT,
+    SPECIALS_PROMPT,
+    STORIES_PROMPT,
     STYLE_ATTRS,
     SYSTEM_PROMPT,
     TONE,
@@ -81,7 +82,9 @@ def get_email_tone(email, chat=default_chat):
     return chain.invoke({"text": f"```{cleaned_email}```\n{STYLE_ATTRS}"})
 
 
-def get_product_copy_chain(tone, brand, prod_desc, salt, likeness, chat=default_chat):
+def get_product_copy_chain(
+    tone, brand, prod_desc, specials, stories, likeness, chat=default_chat
+):
     prompt = ChatPromptTemplate.from_messages(
         [("system", SYSTEM_PROMPT), ("human", "{text}")]
     )
@@ -97,14 +100,25 @@ def get_product_copy_chain(tone, brand, prod_desc, salt, likeness, chat=default_
         else ""
     )
 
-    salt = PromptTemplate.from_template(SALT_PROMPT).format(salt=salt) if salt else ""
+    specials = (
+        PromptTemplate.from_template(SPECIALS_PROMPT).format(specials=specials)
+        if specials
+        else ""
+    )
+
+    stories = (
+        PromptTemplate.from_template(STORIES_PROMPT).format(stories=stories)
+        if stories
+        else ""
+    )
 
     return (
         chain,
         {
             "text": PromptTemplate.from_template(SALES_PROMPT).format(
                 avoid_extra_cruft=AVOID_EXTRA_CRUFT,
-                salt=salt,
+                specials=specials,
+                stories=stories,
                 prod_desc=prod_desc,
                 tone=tone,
                 brand=brand,
@@ -123,7 +137,8 @@ async def generate_email(db, email_generator):
         tone,
         settings.brand,
         email_generator.productDescription,
-        email_generator.salt,
+        email_generator.specials,
+        email_generator.stories,
         email_generator.likeness,
         chat=chat,
     )
