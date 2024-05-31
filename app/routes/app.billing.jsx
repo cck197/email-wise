@@ -1,7 +1,7 @@
 import { json } from "@remix-run/node";
 import { useLoaderData, useSubmit } from "@remix-run/react";
 import { Page, Layout, Text, Card, Button, BlockStack } from "@shopify/polaris";
-import { authenticate, MONTHLY_PLAN, ANNUAL_PLAN } from "../shopify.server";
+import { authenticate, BILLING_OPTS } from "../shopify.server";
 import {
   getSubscriptionStatus,
   createSubscriptionMetafield,
@@ -23,8 +23,7 @@ export const loader = async ({ request }) => {
   const subscriptions = await getSubscriptionStatus(admin.graphql);
   const { activeSubscriptions } = subscriptions.data.app.installation;
 
-  console.log("activeSubscriptions", activeSubscriptions);
-
+  // console.log("activeSubscriptions", activeSubscriptions);
   if (activeSubscriptions.length > 0) {
     if (activeSubscriptions[0].status === "ACTIVE") {
       await createSubscriptionMetafield(admin.graphql, "true");
@@ -33,7 +32,7 @@ export const loader = async ({ request }) => {
     }
   }
 
-  return json({ activeSubscriptions });
+  return json({ activeSubscriptions, billing: BILLING_OPTS });
 };
 
 export const action = async ({ request }) => {
@@ -49,12 +48,12 @@ export const action = async ({ request }) => {
     return null;
   }
 
-  const PLAN = action === "monthly" ? MONTHLY_PLAN : ANNUAL_PLAN;
+  console.log("action", action);
 
   if (data.cancel) {
     const billingCheck = await billing.require({
-      plans: [PLAN],
-      onFailure: async () => billing.request({ plan: PLAN }),
+      plans: [action],
+      onFailure: async () => billing.request({ plan: action }),
     });
     const subscription = billingCheck.appSubscriptions[0];
     await billing.cancel({
@@ -64,9 +63,9 @@ export const action = async ({ request }) => {
     });
   } else {
     await billing.require({
-      plans: [PLAN],
+      plans: [action],
       isTest: isTest,
-      onFailure: async () => billing.request({ plan: PLAN, isTest: isTest }),
+      onFailure: async () => billing.request({ plan: action, isTest: isTest }),
       returnUrl: `https://${shop}/admin/apps/emailwise-debug/app`, // TODO
     });
   }
@@ -74,10 +73,54 @@ export const action = async ({ request }) => {
   return null;
 };
 
+const PlanCard = ({
+  name,
+  plan,
+  hasSubscription,
+  activeSubscriptions,
+  handlePurchaseAction,
+  handleCancelAction,
+}) => (
+  <Layout.Section variant="oneThird">
+    <Card>
+      <Text as="h2" variant="headingMd">
+        {name} Plan
+      </Text>
+      <Text>
+        <b>Cost</b>: ${plan.amount}
+      </Text>
+      <Text>
+        <b>Billing:</b> {plan.interval.toLowerCase().replace(/_/g, " ")}
+      </Text>
+      <Text>
+        <b>Free Trial</b>: {plan.trialDays} days
+      </Text>
+      <div style={{ height: "15px" }} />
+      {!hasSubscription && (
+        <Button onClick={() => handlePurchaseAction(name)} variant="primary">
+          Purchase {name} Plan
+        </Button>
+      )}
+      {hasSubscription && activeSubscriptions[0].name === name && (
+        <Button
+          onClick={() => handleCancelAction(name)}
+          variant="primary"
+          tone="critical"
+        >
+          Cancel {name} Plan
+        </Button>
+      )}
+    </Card>
+  </Layout.Section>
+);
+
 export default function Index() {
-  const { activeSubscriptions } = useLoaderData();
+  const { activeSubscriptions, billing } = useLoaderData();
   const submit = useSubmit();
   const hasSubscription = activeSubscriptions.length == 0 ? false : true;
+
+  console.log("billing", billing);
+  console.log("activeSubscriptions", activeSubscriptions);
 
   const handlePurchaseAction = (subscription) => {
     // This sends a subscription request to our action function
@@ -91,90 +134,42 @@ export default function Index() {
   return (
     <Page>
       <ui-title-bar title="Billing"></ui-title-bar>
-      <BlockStack gap="500">
-        <Layout>
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="500">
-                <BlockStack gap="200">
-                  {/*}
+      {activeSubscriptions.length === 0 && (
+        <>
+          <BlockStack gap="500">
+            <Layout>
+              <Layout.Section>
+                <Card>
+                  <BlockStack gap="500">
+                    <BlockStack gap="200">
+                      {/*}
                   <Text as="h2" variant="headingMd">
                     Below we have two sample plans
   </Text>*/}
 
-                  <Text>
-                    {activeSubscriptions.length > 0
-                      ? `Your current plan is: ${activeSubscriptions[0].name}`
-                      : "Choose a plan below to get started"}
-                    .
-                  </Text>
-                </BlockStack>
-              </BlockStack>
-            </Card>
-          </Layout.Section>
-        </Layout>
-      </BlockStack>
-      <div style={{ marginTop: "15px" }} />
+                      <Text>Choose a plan below to get started.</Text>
+                    </BlockStack>
+                  </BlockStack>
+                </Card>
+              </Layout.Section>
+            </Layout>
+          </BlockStack>
+          <div style={{ marginTop: "15px" }} />
+        </>
+      )}
       <BlockStack gap="500">
         <Layout>
-          <Layout.Section variant="oneThird">
-            <Card>
-              <Text as="h2" variant="headingMd">
-                Monthly Plan
-              </Text>
-              <Text>Cost: $9</Text>
-              <Text>Billed Monthly</Text>
-              <Text>7 Day Free Trial</Text>
-              <div style={{ height: "15px" }} />
-              {!hasSubscription && (
-                <Button
-                  onClick={() => handlePurchaseAction("monthly")}
-                  variant="primary"
-                >
-                  Purchase Plan
-                </Button>
-              )}
-              {hasSubscription &&
-                activeSubscriptions[0].name == "Monthly Subscription" && (
-                  <Button
-                    onClick={() => handleCancelAction("monthly")}
-                    variant="primary"
-                    tone="critical"
-                  >
-                    Cancel Plan
-                  </Button>
-                )}
-            </Card>
-          </Layout.Section>
-          <Layout.Section variant="oneThird">
-            <Card>
-              <Text as="h2" variant="headingMd">
-                Yearly Plan
-              </Text>
-              <Text>Cost: $97</Text>
-              <Text>Billed Annually</Text>
-              <Text>30 Day Free Trial</Text>
-              <div style={{ height: "15px" }} />
-              {!hasSubscription && (
-                <Button
-                  onClick={() => handlePurchaseAction("annual")}
-                  variant="primary"
-                >
-                  Purchase Plan
-                </Button>
-              )}
-              {hasSubscription &&
-                activeSubscriptions[0].name == "Annual Subscription" && (
-                  <Button
-                    onClick={() => handleCancelAction("annual")}
-                    variant="primary"
-                    tone="critical"
-                  >
-                    Cancel Plan
-                  </Button>
-                )}
-            </Card>
-          </Layout.Section>
+          {Object.entries(billing).map(([name, plan]) => (
+            <PlanCard
+              key={name}
+              name={name}
+              plan={plan}
+              hasSubscription={hasSubscription}
+              activeSubscriptions={activeSubscriptions}
+              handlePurchaseAction={handlePurchaseAction}
+              handleCancelAction={handleCancelAction}
+            />
+          ))}
         </Layout>
       </BlockStack>
     </Page>

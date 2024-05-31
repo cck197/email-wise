@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://oclc-producing-queue-socket.trycloudflare.com"
+application_url = "https://simon-sri-holiday-nextel.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://oclc-producing-queue-socket.trycloudflare.com/auth/callback",
-  "https://oclc-producing-queue-socket.trycloudflare.com/auth/shopify/callback",
-  "https://oclc-producing-queue-socket.trycloudflare.com/api/auth/callback"
+  "https://simon-sri-holiday-nextel.trycloudflare.com/auth/callback",
+  "https://simon-sri-holiday-nextel.trycloudflare.com/auth/shopify/callback",
+  "https://simon-sri-holiday-nextel.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

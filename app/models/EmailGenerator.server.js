@@ -86,7 +86,7 @@ export async function deleteGenerator(id) {
 }
 
 export async function rateEmail(shop, id, rating) {
-  console.log("rateEmail", shop, id, rating);
+  // console.log("rateEmail", shop, id, rating);
   return await db.email.update({
     where: {
       id: id,
