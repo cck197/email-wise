@@ -106,7 +106,7 @@ export default function Index() {
 
   return (
     <Page>
-      <ui-title-bar title="Emails"></ui-title-bar>
+      <ui-title-bar title="Previous"></ui-title-bar>
       <Layout>
         <Layout.Section>
           <Card padding="0">

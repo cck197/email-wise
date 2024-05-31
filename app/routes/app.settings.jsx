@@ -47,6 +47,7 @@ export async function loader({ request }) {
           id: "new",
           emailKey: "",
           lLMKey: "",
+          brand: "",
           emailProviderId: emailProviders[0].value,
           lLMProviderId: lLMProviders[0].value,
         },

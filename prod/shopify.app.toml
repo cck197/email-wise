@@ -1,0 +1,30 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "95a32be11f449abdebdbdae93c2218bc"
+name = "EmailWise"
+handle = "emailwise"
+application_url = "https://shopify.emailwise.io"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "quickstart-3d7b636b.myshopify.com"
+include_config_on_deploy = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products"
+
+[auth]
+redirect_urls = ["https://shopify.emailwise.io/auth/callback"]
+
+[webhooks]
+api_version = "2024-04"
+
+[webhooks.privacy_compliance]
+customer_deletion_url = "https://shopify.emailwise.io/webhooks/customers/redact"
+customer_data_request_url = "https://shopify.emailwise.io/webhooks/customers/data_request"
+shop_deletion_url = "https://shopify.emailwise.io/webhooks/shop/redact"
+
+[pos]
+embedded = false

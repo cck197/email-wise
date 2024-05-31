@@ -18,6 +18,12 @@ scopes = "read_products"
 [auth]
 redirect_urls = ["https://shopify.stage.emailwise.io/auth/callback"]
 
+[webhooks.privacy_compliance]
+customer_deletion_url = "https://shopify.stage.emailwise.io/webhooks/customers/redact"
+customer_data_request_url = "https://shopify.stage.emailwise.io/webhooks/customers/data_request"
+shop_deletion_url = "https://shopify.stage.emailwise.io/webhooks/shop/redact"
+
+
 [webhooks]
 api_version = "2024-04"
 
