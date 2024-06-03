@@ -5,7 +5,7 @@ export function MessageCard(title, message) {
     <Card>
       <BlockStack gap="400">
         <BlockStack gap="200">
-          <Text as="h2" variant="headingMd">
+          <Text as={"h2"} variant="headingLg">
             {title}
           </Text>
           <Text as="p" variant="bodyMd">
