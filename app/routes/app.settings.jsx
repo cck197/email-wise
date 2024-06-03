@@ -22,6 +22,7 @@ import {
   Divider,
   Banner,
 } from "@shopify/polaris";
+import { MessageCard } from "./common";
 import {
   getLLMProviders,
   getEmailProviders,
@@ -143,28 +144,20 @@ export default function SettingsForm() {
 
   return (
     <Page>
-      <ui-title-bar title={"Settings"}></ui-title-bar>
+      <ui-title-bar title="Settings"></ui-title-bar>
       <Layout>
-        {isNew && (
-          <>
-            <Layout.Section>
-              <Card>
-                <BlockStack gap="500">
-                  <BlockStack gap="200">
-                    <Text as="h2" variant="headingMd">
-                      Let&apos;s do this!
-                    </Text>
-                    <Text as="p" variant="bodyMd">
-                      Tell us a bit about your brand and connect your email
-                      provider and AI integration to get started.
-                    </Text>
-                  </BlockStack>
-                </BlockStack>
-              </Card>
-            </Layout.Section>
-            <div style={{ marginTop: "15px" }} />
-          </>
-        )}
+        <Layout.Section>
+          {isNew
+            ? MessageCard(
+                "Welcome to EmailWise!",
+                "Setting up EmailWise is easy. First, you can tell us about your company brand and integrate your email provider. Then select your AI provider, and you'll be ready to start earning more money for each email you send.",
+              )
+            : MessageCard(
+                "You're all set!",
+                "Go to the New menu item on the left to select a product and generate a sales email.",
+              )}
+        </Layout.Section>
+        <div style={{ marginTop: "15px" }} />
         <Layout.Section>
           <BlockStack gap={{ xs: "800", sm: "400" }}>
             {lLMKeyResult?.success && (
@@ -189,7 +182,7 @@ export default function SettingsForm() {
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Brand
+                    1. Brand (optional)
                   </Text>
                   <Text as="p" variant="bodyMd">
                     Describe your fundamental purpose, cause or belief system
@@ -202,7 +195,7 @@ export default function SettingsForm() {
                 <BlockStack gap="400">
                   <TextField
                     id="brand"
-                    label="About your brand"
+                    label="About your brand (optional)"
                     helpText=""
                     autoComplete="off"
                     multiline={4}
@@ -222,7 +215,7 @@ export default function SettingsForm() {
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Email Integration
+                    2. Email Integration (optional)
                   </Text>
                   <Text as="p" variant="bodyMd">
                     Adding an email integration enables EmailWise to create new
@@ -245,7 +238,7 @@ export default function SettingsForm() {
                   <TextField
                     id="emailKey"
                     helpText=""
-                    label="Private API key"
+                    label="Private API key (optional)"
                     autoComplete="off"
                     value={formState?.emailKey}
                     onChange={(emailKey) =>
@@ -265,7 +258,7 @@ export default function SettingsForm() {
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    AI Integration
+                    3. AI Integration
                   </Text>
                   <Text as="p" variant="bodyMd">
                     Add an AI integration to enable email generation using your

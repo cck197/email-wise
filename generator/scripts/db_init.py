@@ -9,9 +9,10 @@ from generator.db import connect, get_client
 
 async def init_from_list(l, model):
     db = get_client()
-    await getattr(db, model).create_many(
-        data=[{"name": item} for item in l], skip_duplicates=True
-    )
+    table = getattr(db, model)
+    if await table.count() > 0:
+        return
+    await table.create_many(data=[{"name": item} for item in l], skip_duplicates=True)
 
 
 async def init_tone():

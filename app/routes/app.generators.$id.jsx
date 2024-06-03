@@ -32,6 +32,8 @@ import {
   ThumbsDownIcon,
 } from "@shopify/polaris-icons";
 
+import { MessageCard } from "./common";
+
 import {
   getEmailGenerator,
   validateEmailGenerator,
@@ -265,11 +267,19 @@ export default function EmailGeneratorForm() {
 
   return (
     <Page>
+      <ui-title-bar title="New"></ui-title-bar>
       <Layout>
         <Layout.Section>
-          <BlockStack gap="500">
+          {MessageCard(
+            "Generate a new email",
+            "Select a product from your store and customise your sales message to earn more money for each email you send.",
+          )}
+        </Layout.Section>
+        <div style={{ marginTop: "15px" }} />
+        <Layout.Section>
+          <BlockStack gap="400">
             <Card>
-              <BlockStack gap="500">
+              <BlockStack gap="400">
                 <InlineStack align="space-between">
                   <Text as={"h2"} variant="headingLg">
                     Product
@@ -281,7 +291,7 @@ export default function EmailGeneratorForm() {
                   ) : null}
                 </InlineStack>
                 {formState.productId ? (
-                  <InlineStack blockAlign="center" gap="500">
+                  <InlineStack blockAlign="center" gap="400">
                     <Thumbnail
                       source={formState.productImage || ImageIcon}
                       alt={formState.productAlt}
@@ -306,7 +316,7 @@ export default function EmailGeneratorForm() {
               </BlockStack>
             </Card>
             <Card>
-              <BlockStack gap="500">
+              <BlockStack gap="400">
                 <Text as={"h2"} variant="headingLg">
                   Customise
                 </Text>
@@ -339,7 +349,7 @@ export default function EmailGeneratorForm() {
                 />
                 <TextField
                   id="specials"
-                  label="Please list here any special deals that you'd like the email to include"
+                  label="Please list here any special deals that you'd like the email to include (optional)"
                   helpText="(e.g., 30% off), holidays (e.g., Black Friday), or Special Events (e.g., Back in Stock)"
                   multiline={3}
                   autoComplete="off"
@@ -349,7 +359,7 @@ export default function EmailGeneratorForm() {
                 />
                 <TextField
                   id="stories"
-                  label="Are there any particular stories, angles, problems, or benefits that you'd like the email to mention?"
+                  label="Are there any particular stories, angles, problems, or benefits that you'd like the email to mention? (optional)"
                   multiline={3}
                   autoComplete="off"
                   value={formState.stories}
@@ -361,10 +371,10 @@ export default function EmailGeneratorForm() {
           </BlockStack>
         </Layout.Section>
         <Layout.Section>
-          <BlockStack gap="500">
+          <BlockStack gap="400">
             {generator.id !== null && !isDirty && (
               <Card>
-                <BlockStack gap="500">
+                <BlockStack gap="400">
                   <Text as={"h2"} variant="headingLg">
                     Generated Email
                   </Text>

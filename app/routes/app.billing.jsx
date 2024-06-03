@@ -1,6 +1,7 @@
 import { json } from "@remix-run/node";
 import { useLoaderData, useSubmit } from "@remix-run/react";
 import { Page, Layout, Text, Card, Button, BlockStack } from "@shopify/polaris";
+import { MessageCard } from "./common";
 import { authenticate, BILLING_OPTS } from "../shopify.server";
 import {
   getSubscriptionStatus,
@@ -47,8 +48,6 @@ export const action = async ({ request }) => {
   if (!action) {
     return null;
   }
-
-  console.log("action", action);
 
   if (data.cancel) {
     const billingCheck = await billing.require({
@@ -136,28 +135,20 @@ export default function Index() {
       <ui-title-bar title="Billing"></ui-title-bar>
       {activeSubscriptions.length === 0 && (
         <>
-          <BlockStack gap="500">
+          <BlockStack gap="400">
             <Layout>
               <Layout.Section>
-                <Card>
-                  <BlockStack gap="500">
-                    <BlockStack gap="200">
-                      {/*}
-                  <Text as="h2" variant="headingMd">
-                    Below we have two sample plans
-  </Text>*/}
-
-                      <Text>Choose a plan below to get started.</Text>
-                    </BlockStack>
-                  </BlockStack>
-                </Card>
+                {MessageCard(
+                  "Welcome to EmailWise!",
+                  "Choose a plan to start generating more revenue per email.",
+                )}
               </Layout.Section>
             </Layout>
           </BlockStack>
           <div style={{ marginTop: "15px" }} />
         </>
       )}
-      <BlockStack gap="500">
+      <BlockStack gap="400">
         <Layout>
           {Object.entries(billing).map(([name, plan]) => (
             <PlanCard

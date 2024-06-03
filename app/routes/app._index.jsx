@@ -12,6 +12,8 @@ import {
   InlineStack,
 } from "@shopify/polaris";
 
+import { MessageCard } from "./common";
+
 import { AlertDiamondIcon, ImageIcon } from "@shopify/polaris-icons";
 import {
   getEmailGenerators,
@@ -108,6 +110,13 @@ export default function Index() {
     <Page>
       <ui-title-bar title="Previous"></ui-title-bar>
       <Layout>
+        <Layout.Section>
+          {MessageCard(
+            "Previously generated emails",
+            "Go to the New menu item on the left to select a product and generate a sales email.",
+          )}
+        </Layout.Section>
+        <div style={{ marginTop: "15px" }} />
         <Layout.Section>
           <Card padding="0">
             <EmailGeneratorTable generators={generators} />
