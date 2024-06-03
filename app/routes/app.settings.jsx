@@ -16,10 +16,8 @@ import {
   BlockStack,
   PageActions,
   Select,
-  useBreakpoints,
   InlineGrid,
   Box,
-  Divider,
   Banner,
 } from "@shopify/polaris";
 import { MessageCard } from "./common";
@@ -101,7 +99,6 @@ export default function SettingsForm() {
   const [cleanFormState, setCleanFormState] = useState(settings);
   // const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
   const [isDirty, setIsDirty] = useState(false);
-  const { smUp } = useBreakpoints();
 
   const nav = useNavigation();
   const isSaving = nav.state === "submitting";
@@ -206,7 +203,6 @@ export default function SettingsForm() {
                 </BlockStack>
               </Card>
             </InlineGrid>
-            {smUp ? <Divider /> : null}
             <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
               <Box
                 as="section"
@@ -249,7 +245,6 @@ export default function SettingsForm() {
                 </BlockStack>
               </Card>
             </InlineGrid>
-            {smUp ? <Divider /> : null}
             <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
               <Box
                 as="section"
