@@ -14,9 +14,10 @@ from .prompts import (
     SALES_PROMPT,
     SPECIALS_PROMPT,
     STORIES_PROMPT,
+    STYLE,
     STYLE_ATTRS,
+    STYLE_PROMPT,
     SYSTEM_PROMPT,
-    TONE,
     TONE_PROMPT,
 )
 from .settings import get_settings
@@ -42,7 +43,7 @@ def get_chat(settings):
 
 
 async def get_email_generator(db, id):
-    return await db.emailgenerator.find_first(where={"id": id})
+    return await db.emailgenerator.find_first(where={"id": id}, include={"tone": True})
 
 
 async def save_email(db, name, html, text, email_generator):
@@ -74,16 +75,16 @@ def clean_email(email, chat=default_chat):
     return chain.invoke({"text": email.text})
 
 
-def get_email_tone(email, chat=default_chat):
+def get_email_style(email, chat=default_chat):
     cleaned_email = clean_email(email, chat).content
-    system = f"""{TONE} {AVOID_EXTRA_CRUFT}"""
+    system = f"""{STYLE} {AVOID_EXTRA_CRUFT}"""
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{text}")])
     chain = prompt | chat
     return chain.invoke({"text": f"```{cleaned_email}```\n{STYLE_ATTRS}"})
 
 
 def get_product_copy_chain(
-    tone, brand, prod_desc, specials, stories, likeness, chat=default_chat
+    style, brand, prod_desc, specials, stories, tone, likeness, chat=default_chat
 ):
     prompt = ChatPromptTemplate.from_messages(
         [("system", SYSTEM_PROMPT), ("human", "{text}")]
@@ -94,9 +95,11 @@ def get_product_copy_chain(
         PromptTemplate.from_template(BRAND_PROMPT).format(brand=brand) if brand else ""
     )
 
-    tone = (
-        PromptTemplate.from_template(TONE_PROMPT).format(likeness=likeness, tone=tone)
-        if tone
+    style = (
+        PromptTemplate.from_template(STYLE_PROMPT).format(
+            likeness=likeness, style=style
+        )
+        if style
         else ""
     )
 
@@ -112,6 +115,12 @@ def get_product_copy_chain(
         else ""
     )
 
+    tone = (
+        PromptTemplate.from_template(TONE_PROMPT).format(tone=tone)
+        if tone != "Neutral"
+        else ""
+    )
+
     return (
         chain,
         {
@@ -119,8 +128,9 @@ def get_product_copy_chain(
                 avoid_extra_cruft=AVOID_EXTRA_CRUFT,
                 specials=specials,
                 stories=stories,
-                prod_desc=prod_desc,
                 tone=tone,
+                prod_desc=prod_desc,
+                style=style,
                 brand=brand,
             )
         },
@@ -132,13 +142,14 @@ async def generate_email(db, email_generator):
     chat = get_chat(settings)
     print(f"{chat=}")
     sample_email = await get_sample_email(db, email_generator.shop)
-    tone = get_email_tone(sample_email, chat=chat).content if sample_email else ""
+    style = get_email_style(sample_email, chat=chat).content if sample_email else ""
     return get_product_copy_chain(
-        tone,
+        style,
         settings.brand,
         email_generator.productDescription,
         email_generator.specials,
         email_generator.stories,
+        email_generator.tone.name if email_generator.tone else "Neutral",
         email_generator.likeness,
         chat=chat,
     )

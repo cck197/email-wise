@@ -23,6 +23,7 @@ import {
   Spinner,
   RangeSlider,
   ButtonGroup,
+  Select,
 } from "@shopify/polaris";
 import {
   ImageIcon,
@@ -38,6 +39,7 @@ import {
   rateEmail,
   deleteGenerator,
   getSettings,
+  getTones,
 } from "/app/models/EmailGenerator.server";
 import { hasActiveSubscription } from "../models/Subscription.server";
 
@@ -50,14 +52,24 @@ export async function loader({ request, params }) {
   if (!settings) {
     return redirect("/app/settings");
   }
+  const tones = await getTones();
   const data = {
     baseUrl: process.env.SSE_URL,
     settings,
+    tones,
   };
+
+  const neutral_tone = tones.find((tone) => tone.label === "Neutral");
 
   if (params.id === "new") {
     return json({
-      generator: { id: null, specials: "", stories: "", likeness: 3 },
+      generator: {
+        id: null,
+        specials: "",
+        stories: "",
+        likeness: 3,
+        toneId: neutral_tone.value,
+      },
       email: null,
       ...data,
     });
@@ -66,7 +78,10 @@ export async function loader({ request, params }) {
   const id = Number(params.id);
   const generator = await getEmailGenerator(id, admin.graphql);
   return json({
-    generator,
+    generator: {
+      ...generator,
+      toneId: generator.toneId || neutral_tone.value,
+    },
     ...data,
   });
 }
@@ -81,6 +96,7 @@ export async function action({ request, params }) {
     shop,
     ...formData,
     likeness: Number(formData.likeness),
+    toneId: Number(formData.toneId),
   };
 
   if (formData.action === "delete") {
@@ -104,7 +120,7 @@ export async function action({ request, params }) {
 export default function EmailGeneratorForm() {
   const errors = useActionData()?.errors || {};
 
-  const { generator, baseUrl, settings } = useLoaderData();
+  const { generator, baseUrl, settings, tones } = useLoaderData();
   const [formState, setFormState] = useState(generator);
   const [cleanFormState, setCleanFormState] = useState(generator);
   const [isDirty, setIsDirty] = useState(false);
@@ -204,6 +220,7 @@ export default function EmailGeneratorForm() {
       productHandle: formState.productHandle || "",
       specials: formState.specials || "",
       stories: formState.stories || "",
+      toneId: formState?.toneId || tones[0].value,
       likeness: formState.likeness,
     };
     setCleanFormState({ ...formState });
@@ -313,11 +330,17 @@ export default function EmailGeneratorForm() {
                     }
                   />
                 )}
+                <Select
+                  label="Tone of voice for the email"
+                  options={tones}
+                  onChange={(value) => handleFormChange("toneId", value)}
+                  value={formState?.toneId?.toString()}
+                  error={errors.toneId}
+                />
                 <TextField
                   id="specials"
-                  helpText="Please list here any special deals (e.g., 30% off), holidays (e.g., Black Friday), or Special Events (e.g., Back in Stock) that you'd like the email to include"
-                  label="specials"
-                  labelHidden
+                  label="Please list here any special deals that you'd like the email to include"
+                  helpText="(e.g., 30% off), holidays (e.g., Black Friday), or Special Events (e.g., Back in Stock)"
                   multiline={3}
                   autoComplete="off"
                   value={formState.specials}
@@ -326,9 +349,7 @@ export default function EmailGeneratorForm() {
                 />
                 <TextField
                   id="stories"
-                  helpText="Are there any particular stories, angles, problems, or benefits that you'd like the email to mention?"
-                  label="stories"
-                  labelHidden
+                  label="Are there any particular stories, angles, problems, or benefits that you'd like the email to mention?"
                   multiline={3}
                   autoComplete="off"
                   value={formState.stories}

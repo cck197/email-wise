@@ -27,8 +27,8 @@ STYLE_ATTRS = os.environ.get(
 """,
 )
 
-TONE = os.environ.get(
-    "TONE",
+STYLE = os.environ.get(
+    "STYLE",
     "List the tone qualities for the text delimited by triple backticks below using the list.",
 )
 
@@ -45,6 +45,11 @@ Pay very close attention to the angle, story, problem to address, or benefit to 
 """
 
 TONE_PROMPT = """
+Pay very close attention to the tone below delimited by triple backticks.
+%TONE%```{tone}```
+"""
+
+STYLE_PROMPT = """
 The email should have similar style qualities to those listed below. 
 The degree of likeness is a five point scale from 1 to 5:
 1: Not at all
@@ -53,7 +58,7 @@ The degree of likeness is a five point scale from 1 to 5:
 4: Quite a bit
 5: Very much
  %LIKENESS```{likeness}```
-{tone}"""
+{style}"""
 
 BRAND_PROMPT = """
 Take into consideration the company brand listed below.
@@ -130,6 +135,7 @@ Please start the email with 3 possible catchy subject lines, each marked with "[
 %PROD%```{prod_desc}```
 {specials}
 {stories}
+{style}
 {tone}
 Important Reminders:
 

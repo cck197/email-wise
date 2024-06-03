@@ -46,6 +46,12 @@ model LLMProvider {
   settings Settings[]
 }
 
+model Tone {
+  id             Int              @id @default(autoincrement())
+  name           String
+  EmailGenerator EmailGenerator[]
+}
+
 model EmailGenerator {
   id                 Int      @id @default(autoincrement())
   shop               String
@@ -56,6 +62,8 @@ model EmailGenerator {
   productDescription String
   specials           String?
   stories            String?
+  toneId             Int?
+  tone               Tone?    @relation(fields: [toneId], references: [id])
   likeness           Int      @default(3)
   createdAt          DateTime @default(now())
   Email              Email[]

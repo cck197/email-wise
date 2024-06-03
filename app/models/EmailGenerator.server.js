@@ -10,6 +10,7 @@ export async function getEmailGenerator(id, graphql) {
           createdAt: "desc",
         },
       },
+      tone: true,
     },
   });
   return supplementGenerator(generator, graphql);
@@ -33,6 +34,10 @@ export async function getLLMProviders() {
 
 export async function getEmailProviders() {
   return getSelectValues("emailProvider");
+}
+
+export async function getTones() {
+  return getSelectValues("tone");
 }
 
 export async function getSettings(shop) {
