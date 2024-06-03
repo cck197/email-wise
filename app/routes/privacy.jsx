@@ -85,7 +85,7 @@ export default function Privacy() {
       </p>
 
       <p>
-        <strong>Last Updated:</strong> [Insert Date]
+        <strong>Last Updated:</strong> {date}
       </p>
     </>
   );
