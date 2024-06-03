@@ -1,13 +1,23 @@
 ### Input
 
-* specials: launch party introductory prices
-* stories: mention the product by name
+#### Hand written product description
 
-### Output
+Generate more revenue per email using generative AI. Import your previous email
+campaigns from Klaviyo for consistent tone and style, then select a product and
+generate new sales emails that convert like crazy. You can customise each
+message by providing details of special offers, stories, angles, or problems
+you'd like to cover.
 
-- [Subject Line #1] The Secret to Boosting Your Email Revenue (And It’s Easier Than You Think)
-- [Subject Line #2] URGENT: Last Chance for Launch Party Prices! 🚀
-- [Subject Line #3] How One Shopify Store Owner Skyrocketed Sales (in Just One Week!)
+#### EmailWise form
+
+* **specials**: launch party introductory prices
+* **stories**: mention the product by name
+
+### Generated output
+
+* [Subject Line #1] The Secret to Boosting Your Email Revenue (And It’s Easier Than You Think)
+* [Subject Line #2] URGENT: Last Chance for Launch Party Prices! 🚀
+* [Subject Line #3] How One Shopify Store Owner Skyrocketed Sales (in Just One Week!)
 
 ---
 
