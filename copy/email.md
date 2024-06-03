@@ -1,12 +1,12 @@
 ### Input
 
-#### Hand written product description
+#### Hand-written product description
 
-Generate more revenue per email using generative AI. Import your previous email
-campaigns from Klaviyo for consistent tone and style, then select a product and
-generate new sales emails that convert like crazy. You can customise each
-message by providing details of special offers, stories, angles, or problems
-you'd like to cover.
+Generate more revenue per email using AI. Import your previous email campaigns
+from Klaviyo for consistent tone and style, then select a product and generate
+new sales emails that convert like crazy. You can customise each message by
+providing details of special offers, stories, angles, or problems you'd like to
+cover.
 
 #### EmailWise form
 
