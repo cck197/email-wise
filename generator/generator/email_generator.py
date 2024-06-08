@@ -1,4 +1,5 @@
 import os
+import random
 
 import redis
 from langchain.globals import set_llm_cache
@@ -9,8 +10,10 @@ from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
 
 from .prompts import (
+    AUTHORS,
     AVOID_EXTRA_CRUFT,
     BRAND_PROMPT,
+    KNOBS,
     SALES_PROMPT,
     SPECIALS_PROMPT,
     STORIES_PROMPT,
@@ -30,6 +33,16 @@ TEMPERATURE = os.environ.get("TEMPERATURE", 0.7)
 set_llm_cache(RedisCache(redis_=redis.from_url(os.environ["BROKER_URL"]), ttl=3600))
 
 default_chat = ChatGroq(temperature=TEMPERATURE, model_name=GROQ_MODEL_NAME)
+
+
+def get_random_author():
+    authors = AUTHORS.split("/")
+    return random.choice(authors).strip()
+
+
+def get_knob(name):
+    (p, t) = KNOBS[name]
+    return t if random.random() > p else ""
 
 
 def get_chat(settings):
@@ -86,8 +99,9 @@ def get_email_style(email, chat=default_chat):
 def get_product_copy_chain(
     style, brand, prod_desc, specials, stories, tone, likeness, chat=default_chat
 ):
+    author = get_random_author()
     prompt = ChatPromptTemplate.from_messages(
-        [("system", SYSTEM_PROMPT), ("human", "{text}")]
+        [("system", SYSTEM_PROMPT.format(author=author)), ("human", "{text}")]
     )
     chain = prompt | chat
 
@@ -126,6 +140,10 @@ def get_product_copy_chain(
         {
             "text": PromptTemplate.from_template(SALES_PROMPT).format(
                 avoid_extra_cruft=AVOID_EXTRA_CRUFT,
+                author=author,
+                product_halfway=get_knob("PRODUCT_HALFWAY"),
+                fictional_story=get_knob("FICTIONAL_STORY"),
+                hide_the_ball=get_knob("HIDE_THE_BALL"),
                 specials=specials,
                 stories=stories,
                 tone=tone,

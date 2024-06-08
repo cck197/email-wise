@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://coupon-play-circular-meta.trycloudflare.com"
+application_url = "https://pd-agent-teen-indicates.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://coupon-play-circular-meta.trycloudflare.com/auth/callback",
-  "https://coupon-play-circular-meta.trycloudflare.com/auth/shopify/callback",
-  "https://coupon-play-circular-meta.trycloudflare.com/api/auth/callback"
+  "https://pd-agent-teen-indicates.trycloudflare.com/auth/callback",
+  "https://pd-agent-teen-indicates.trycloudflare.com/auth/shopify/callback",
+  "https://pd-agent-teen-indicates.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
