@@ -27,8 +27,7 @@ KNOBS = {
 
 AVOID_EXTRA_CRUFT = os.environ.get(
     "AVOID_EXTRA_CRUFT",
-    """Avoid starting your responses with 'Here is the' or 'Here's the'. No
-    backticks. Provide the answer and nothing else.""",
+    """Do *NOT* start your response with "Here is" or "Here's". No backticks. Provide the answer and nothing else.""",
 )
 
 STYLE_ATTRS = os.environ.get(
@@ -145,9 +144,12 @@ Here is a non-exclusive list of truths you know about writing good email sales c
 
 Rules for writing this email:
 
--  {avoid_extra_cruft}
 -  Write a brief (no more than 750 words) sales email for the PRODUCT delimited by triple backticks below.
--  Start the email with 3 possible catchy subject lines, each marked with "[Subject Line #1]", "[Subject Line #2]", or "[Subject Line #3]".
+-  Start the email with a bullet list of 3 possible catchy subject lines like this:
+Subject Lines:
+  - [Subject Line #1]
+  - [Subject Line #2]
+  - [Subject Line #3]
 -  The email should have similar style qualities to those listed below (labelled %STYLE%).
 {tone}
 {specials}
@@ -169,5 +171,6 @@ One final request: please do the following in the email:
 1.  Clearly note which phrases/sentences should be linked to the product/service, and link those phrases/sentences.
 2.  Where images should go in the email, create prompts for the generation of the most curious/engaging image at each point.
 3.  Do NOT sign the email - simply write "[Sender Name]"
+4. {avoid_extra_cruft}
 {brand}
 """
