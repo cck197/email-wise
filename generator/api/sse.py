@@ -51,8 +51,8 @@ async def sse_email(generator_id):
                 {"error": f"email generator {generator_id} not found"}
             )
             return
-        (chain, input) = await generate_email(db, email_generator)
         try:
+            (chain, input) = await generate_email(db, email_generator)
             chunks = []
             async for chunk in chain.astream(input):
                 content = chunk.content
@@ -73,6 +73,9 @@ async def sse_email(generator_id):
         except asyncio.CancelledError:
             # client has disconnected, perform cleanup here
             print("client disconnected")
+        except Exception as e:
+            print(f"error generating email: {e}")
+            yield get_encoded_event({"event": "error", "message": str(e)})
 
     response = await make_response(send_email_events(), SSE_HEADERS)
     response.timeout = None

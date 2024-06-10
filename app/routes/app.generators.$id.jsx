@@ -164,6 +164,12 @@ export default function EmailGeneratorForm() {
     }
   }
 
+  function end(eventSource) {
+    eventSource.close();
+    setIsConnected(false);
+    eventSourceRef.current = null;
+  }
+
   useEffect(() => {
     if (!isConnected) {
       return;
@@ -178,10 +184,11 @@ export default function EmailGeneratorForm() {
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.event === "end") {
-          eventSource.close();
-          setIsConnected(false);
-          eventSourceRef.current = null;
+          end(eventSource);
           setEmailId(data.id);
+        } else if (data.event === "error") {
+          setMessage(data.message);
+          end(eventSource);
         } else {
           setIsLoading(false);
           setMessage((prevMessage) => prevMessage + data.message);

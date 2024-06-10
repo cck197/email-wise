@@ -20,7 +20,6 @@ import {
   Box,
   Banner,
 } from "@shopify/polaris";
-import { MessageCard } from "./common";
 import {
   getLLMProviders,
   getEmailProviders,
@@ -140,24 +139,10 @@ export default function SettingsForm() {
     setIsDirty(JSON.stringify(formState) !== JSON.stringify(cleanFormState));
   }, [formState, cleanFormState]);
 
-  const isNew = settings.id === "new";
-
   return (
     <Page>
       <ui-title-bar title="Settings"></ui-title-bar>
       <Layout>
-        <Layout.Section>
-          {isNew
-            ? MessageCard(
-                "Welcome to EmailWise!",
-                "Setting up EmailWise is easy. First, you can tell us about your company brand and integrate your email provider. Then select your AI provider, and you'll be ready to start earning more money for each email you send.",
-              )
-            : MessageCard(
-                "You're all set!",
-                "Go to the New menu item on the left to select a product and generate a sales email.&rsquo;",
-              )}
-        </Layout.Section>
-        <div style={{ marginTop: "15px" }} />
         <Layout.Section>
           <BlockStack gap={{ xs: "800", sm: "400" }}>
             {lLMKeyResult?.success && (

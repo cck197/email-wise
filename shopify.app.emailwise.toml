@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://ing-producer-nr-features.trycloudflare.com"
+application_url = "https://passengers-according-deviant-legislature.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://ing-producer-nr-features.trycloudflare.com/auth/callback",
-  "https://ing-producer-nr-features.trycloudflare.com/auth/shopify/callback",
-  "https://ing-producer-nr-features.trycloudflare.com/api/auth/callback"
+  "https://passengers-according-deviant-legislature.trycloudflare.com/auth/callback",
+  "https://passengers-according-deviant-legislature.trycloudflare.com/auth/shopify/callback",
+  "https://passengers-according-deviant-legislature.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

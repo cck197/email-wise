@@ -47,7 +47,7 @@ def get_knob(name):
 
 
 def get_chat(settings):
-    if ALLOW_NO_LLM_PROVIDER and (settings is None or not settings.llmKey):
+    if ALLOW_NO_LLM_PROVIDER and (settings is None or not settings.lLMKey):
         return default_chat
     kwargs = {"api_key": settings.lLMKey, "temperature": TEMPERATURE}
     chat_map = {
