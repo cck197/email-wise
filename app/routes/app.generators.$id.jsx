@@ -6,6 +6,7 @@ import {
   useLoaderData,
   useNavigation,
   useSubmit,
+  useNavigate,
 } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import {
@@ -42,6 +43,7 @@ import {
   deleteGenerator,
   getSettings,
   getTones,
+  ALLOW_NO_LLM_PROVIDER,
 } from "/app/models/EmailGenerator.server";
 import { hasActiveSubscription } from "../models/Subscription.server";
 
@@ -51,7 +53,7 @@ export async function loader({ request, params }) {
     return redirect("/app/billing");
   }
   const settings = await getSettings(session.shop);
-  if (!settings) {
+  if (!settings && !ALLOW_NO_LLM_PROVIDER) {
     return redirect("/app/settings");
   }
   const tones = await getTones();
@@ -265,14 +267,21 @@ export default function EmailGeneratorForm() {
     });
   };
 
+  const navigate = useNavigate();
+  const title = "→ " + (generator.id ? "Edit" : "New");
+
   return (
     <Page>
-      <ui-title-bar title="New"></ui-title-bar>
+      <ui-title-bar title={title}>
+        <button variant="breadcrumb" onClick={() => navigate("/app")}>
+          Emails
+        </button>
+      </ui-title-bar>
       <Layout>
         <Layout.Section>
           {MessageCard(
-            "Generate a new email",
-            "Select a product from your store and customise your sales message to earn more money for each email you send.",
+            "Generate an email",
+            "Select a product from your store and customise your sales message.",
           )}
         </Layout.Section>
         <div style={{ marginTop: "15px" }} />
@@ -320,7 +329,7 @@ export default function EmailGeneratorForm() {
                 <Text as={"h2"} variant="headingLg">
                   Customise
                 </Text>
-                {settings.emailKey && (
+                {settings?.emailKey && (
                   <RangeSlider
                     id="likeness"
                     label="Style consistency"

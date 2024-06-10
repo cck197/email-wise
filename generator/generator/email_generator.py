@@ -29,6 +29,7 @@ GROQ_MODEL_NAME = os.environ.get("GROQ_MODEL_NAME", "llama3-70b-8192")
 OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME", "gpt-4o")
 ANTHROPIC_MODEL_NAME = os.environ.get("ANTHROPIC_MODEL_NAME", "claude-3-opus-20240229")
 TEMPERATURE = os.environ.get("TEMPERATURE", 0.7)
+ALLOW_NO_LLM_PROVIDER = os.environ.get("ALLOW_NO_LLM_PROVIDER", "true") == "true"
 
 set_llm_cache(RedisCache(redis_=redis.from_url(os.environ["BROKER_URL"]), ttl=3600))
 
@@ -46,6 +47,8 @@ def get_knob(name):
 
 
 def get_chat(settings):
+    if ALLOW_NO_LLM_PROVIDER and (settings is None or not settings.llmKey):
+        return default_chat
     kwargs = {"api_key": settings.lLMKey, "temperature": TEMPERATURE}
     chat_map = {
         "Groq": ChatGroq(model_name=GROQ_MODEL_NAME, **kwargs),
@@ -53,6 +56,10 @@ def get_chat(settings):
         "Anthropic": ChatAnthropic(model_name=ANTHROPIC_MODEL_NAME, **kwargs),
     }
     return chat_map.get(settings.lLMProvider.name, default_chat)
+
+
+def get_brand(settings):
+    return settings.brand if settings else None
 
 
 async def get_email_generator(db, id):
@@ -163,7 +170,7 @@ async def generate_email(db, email_generator):
     style = get_email_style(sample_email, chat=chat).content if sample_email else ""
     return get_product_copy_chain(
         style,
-        settings.brand,
+        get_brand(settings),
         email_generator.productDescription,
         email_generator.specials,
         email_generator.stories,

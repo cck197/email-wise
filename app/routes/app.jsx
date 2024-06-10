@@ -20,8 +20,6 @@ export const loader = async ({ request }) => {
 const EmailWiseNavMenu = () => {
   return (
     <NavMenu>
-      <a href="/app/generators/new">New</a>
-      <a href="/app">Previous</a>
       <a href="/app/settings">Settings</a>
       <a href="/app/billing">Billing</a>
     </NavMenu>

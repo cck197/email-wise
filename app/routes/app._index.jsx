@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
+import { useLoaderData, Link, useNavigate } from "@remix-run/react";
 import { authenticate } from "/app/shopify.server";
 import {
   Card,
@@ -12,12 +12,11 @@ import {
   InlineStack,
 } from "@shopify/polaris";
 
-import { MessageCard } from "./common";
-
 import { AlertDiamondIcon, ImageIcon } from "@shopify/polaris-icons";
 import {
   getEmailGenerators,
   getSettings,
+  ALLOW_NO_LLM_PROVIDER,
 } from "/app/models/EmailGenerator.server";
 import { hasActiveSubscription } from "../models/Subscription.server";
 
@@ -27,7 +26,7 @@ export async function loader({ request }) {
     return redirect("/app/billing");
   }
   const settings = await getSettings(session.shop);
-  if (!settings) {
+  if (!settings && !ALLOW_NO_LLM_PROVIDER) {
     return redirect("/app/settings");
   }
   const generators = await getEmailGenerators(session.shop, admin.graphql);
@@ -57,7 +56,7 @@ const EmailGeneratorTable = ({ generators }) => (
       { title: "Thumbnail", hidden: true },
       { title: "Product" },
       { title: "Subject" },
-      { title: "Date created" },
+      { title: "Date" },
     ]}
     selectable={false}
     pagination={{
@@ -98,25 +97,28 @@ const EmailGeneratorTableRow = ({ generator }) => (
     </IndexTable.Cell>
     <IndexTable.Cell>{truncate(generator.Email[0]?.name)}</IndexTable.Cell>
     <IndexTable.Cell>
-      {new Date(generator.createdAt).toDateString()}
+      {new Date(
+        generator.Email[0]?.createdAt || generator.createdAt,
+      ).toDateString()}
     </IndexTable.Cell>
   </IndexTable.Row>
 );
 
 export default function Index() {
   const { generators } = useLoaderData();
+  const navigate = useNavigate();
 
   return (
     <Page>
-      <ui-title-bar title="Previous"></ui-title-bar>
+      <ui-title-bar title="Emails">
+        <button
+          variant="primary"
+          onClick={() => navigate("/app/generators/new")}
+        >
+          Create Email
+        </button>
+      </ui-title-bar>
       <Layout>
-        <Layout.Section>
-          {MessageCard(
-            "Previously generated emails",
-            "Go to the New menu item on the left to select a product and generate a sales email.",
-          )}
-        </Layout.Section>
-        <div style={{ marginTop: "15px" }} />
         <Layout.Section>
           <Card padding="0">
             <EmailGeneratorTable generators={generators} />

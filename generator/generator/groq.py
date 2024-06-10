@@ -1,9 +1,13 @@
+import os
+
 from groq import AuthenticationError, Groq
+
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 
 class GroqClient(object):
     def __init__(self, api_key):
-        self.client = Groq(api_key=api_key)
+        self.client = Groq(api_key=api_key if api_key else GROQ_API_KEY)
 
     def list_models(self):
         return self.client.models.list()

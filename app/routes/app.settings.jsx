@@ -27,6 +27,7 @@ import {
   validateSettings,
   saveSettings,
   getSettings,
+  ALLOW_NO_LLM_PROVIDER,
 } from "/app/models/EmailGenerator.server";
 import { hasActiveSubscription } from "../models/Subscription.server";
 
@@ -52,6 +53,7 @@ export async function loader({ request }) {
         },
     lLMProviders,
     emailProviders,
+    allow_no_llm_provider: ALLOW_NO_LLM_PROVIDER,
   });
 }
 
@@ -94,7 +96,8 @@ export default function SettingsForm() {
 
   const errors = actionData?.errors || {};
 
-  const { settings, lLMProviders, emailProviders } = useLoaderData();
+  const { settings, lLMProviders, emailProviders, allow_no_llm_provider } =
+    useLoaderData();
   const [formState, setFormState] = useState(settings);
   const [cleanFormState, setCleanFormState] = useState(settings);
   // const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
@@ -151,7 +154,7 @@ export default function SettingsForm() {
               )
             : MessageCard(
                 "You're all set!",
-                "Go to the New menu item on the left to select a product and generate a sales email.",
+                "Go to the New menu item on the left to select a product and generate a sales email.&rsquo;",
               )}
         </Layout.Section>
         <div style={{ marginTop: "15px" }} />
@@ -253,11 +256,15 @@ export default function SettingsForm() {
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    3. AI Integration
+                    3. AI Integration{" "}
+                    {allow_no_llm_provider ? "(optional)" : ""}
                   </Text>
                   <Text as="p" variant="bodyMd">
                     Add an AI integration to enable email generation using your
                     provider of choice.
+                    {allow_no_llm_provider
+                      ? "If you don't have an AI provider, we'll pick one for you."
+                      : ""}
                   </Text>
                 </BlockStack>
               </Box>
@@ -275,7 +282,10 @@ export default function SettingsForm() {
                   <TextField
                     id="lLMKey"
                     helpText=""
-                    label="Private API key"
+                    label={
+                      "Private API key" +
+                      (allow_no_llm_provider ? " (optional)" : "")
+                    }
                     autoComplete="off"
                     value={formState?.lLMKey}
                     onChange={(lLMKey) =>

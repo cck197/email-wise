@@ -1,6 +1,9 @@
 import { getQueue } from "./bull";
 import db from "/app/db.server";
 
+export const ALLOW_NO_LLM_PROVIDER =
+  process.env.ALLOW_NO_LLM_PROVIDER === "true" || false;
+
 export async function getEmailGenerator(id, graphql) {
   const generator = await db.emailGenerator.findFirstOrThrow({
     where: { id },
@@ -61,7 +64,7 @@ export async function getEmailGenerators(shop, graphql) {
 }
 
 export async function getEmailGeneratorsByShop(shop) {
-  return await db.emailGenerator.findMany({
+  const generators = await db.emailGenerator.findMany({
     where: {
       shop: shop,
     },
@@ -70,6 +73,17 @@ export async function getEmailGeneratorsByShop(shop) {
     },
     orderBy: { id: "desc" },
   });
+  const sortedGenerators = generators.sort((a, b) => {
+    const aMaxDate = Math.max(
+      ...a.Email.map((email) => new Date(email.createdAt)),
+    );
+    const bMaxDate = Math.max(
+      ...b.Email.map((email) => new Date(email.createdAt)),
+    );
+    return bMaxDate - aMaxDate;
+  });
+
+  return sortedGenerators;
 }
 
 export async function getEmail(shop, id) {
@@ -211,7 +225,7 @@ export function validateSettings(data) {
     errors.lLMProviderId = "AI provider is required";
   }
 
-  if (!data.lLMKey) {
+  if (!data.lLMKey && !ALLOW_NO_LLM_PROVIDER) {
     errors.lLMKey = "AI private key is required";
   }
 
