@@ -72,7 +72,6 @@ model EmailGenerator {
 model Email {
   id               Int             @id @default(autoincrement())
   shop             String
-  name             String?
   html             String?
   text             String?
   createdAt        DateTime        @default(now())

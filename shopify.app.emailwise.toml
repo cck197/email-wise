@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://passengers-according-deviant-legislature.trycloudflare.com"
+application_url = "https://donations-stones-singing-indoor.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://passengers-according-deviant-legislature.trycloudflare.com/auth/callback",
-  "https://passengers-according-deviant-legislature.trycloudflare.com/auth/shopify/callback",
-  "https://passengers-according-deviant-legislature.trycloudflare.com/api/auth/callback"
+  "https://donations-stones-singing-indoor.trycloudflare.com/auth/callback",
+  "https://donations-stones-singing-indoor.trycloudflare.com/auth/shopify/callback",
+  "https://donations-stones-singing-indoor.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

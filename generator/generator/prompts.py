@@ -145,11 +145,7 @@ Here is a non-exclusive list of truths you know about writing good email sales c
 Rules for writing this email:
 
 -  Write a brief (no more than 750 words) sales email for the PRODUCT delimited by triple backticks below.
--  Start the email with a bullet list of 3 possible catchy subject lines like this:
-Subject Lines:
-  - [Subject Line #1]
-  - [Subject Line #2]
-  - [Subject Line #3]
+- Start the email with 3 possible catchy subject lines, each marked with "[Subject Line #1]", "[Subject Line #2]", or "[Subject Line #3]".
 -  The email should have similar style qualities to those listed below (labelled %STYLE%).
 {tone}
 {specials}

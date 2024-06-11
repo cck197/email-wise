@@ -69,7 +69,11 @@ export async function getEmailGeneratorsByShop(shop) {
       shop: shop,
     },
     include: {
-      Email: true,
+      Email: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
     },
     orderBy: { id: "desc" },
   });

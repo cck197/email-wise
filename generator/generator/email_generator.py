@@ -66,12 +66,11 @@ async def get_email_generator(db, id):
     return await db.emailgenerator.find_first(where={"id": id}, include={"tone": True})
 
 
-async def save_email(db, name, html, text, email_generator):
+async def save_email(db, html, text, email_generator):
     return await db.email.create(
         data={
             "shop": email_generator.shop,
             "emailGeneratorId": email_generator.id,
-            "name": name,
             "html": html,
             "text": text,
         }

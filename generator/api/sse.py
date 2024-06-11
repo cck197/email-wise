@@ -59,11 +59,9 @@ async def sse_email(generator_id):
                 chunks.append(content)
                 yield get_encoded_event({"message": content})
             copy = "".join(chunks)
-            name = copy.split("\n")[0]
-            print(f"done generating email: {name=}")
+            print(f"done generating email")
             email = await save_email(
                 db,
-                name,
                 copy,
                 copy,
                 email_generator,

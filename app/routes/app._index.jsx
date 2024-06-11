@@ -45,6 +45,10 @@ function truncate(str, { length = 25 } = {}) {
   return str.slice(0, length) + "…";
 }
 
+function removeSubjectPrefix(str) {
+  return str.replace(/\[.*?\]/g, "");
+}
+
 const EmailGeneratorTable = ({ generators }) => (
   <IndexTable
     resourceName={{
@@ -55,7 +59,7 @@ const EmailGeneratorTable = ({ generators }) => (
     headings={[
       { title: "Thumbnail", hidden: true },
       { title: "Product" },
-      { title: "Subject" },
+      { title: "Preview" },
       { title: "Date" },
     ]}
     selectable={false}
@@ -95,7 +99,9 @@ const EmailGeneratorTableRow = ({ generator }) => (
         </Link>
       )}
     </IndexTable.Cell>
-    <IndexTable.Cell>{truncate(generator.Email[0]?.name)}</IndexTable.Cell>
+    <IndexTable.Cell>
+      {truncate(removeSubjectPrefix(generator.Email[0]?.text))}
+    </IndexTable.Cell>
     <IndexTable.Cell>
       {new Date(
         generator.Email[0]?.createdAt || generator.createdAt,
