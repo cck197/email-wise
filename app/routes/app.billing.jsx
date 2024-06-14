@@ -1,12 +1,13 @@
 import { json } from "@remix-run/node";
 import { useLoaderData, useSubmit } from "@remix-run/react";
 import { Page, Layout, Text, Card, Button, BlockStack } from "@shopify/polaris";
-import { MessageCard } from "./common";
 import { authenticate, BILLING_OPTS } from "../shopify.server";
 import {
   getSubscriptionStatus,
   createSubscriptionMetafield,
 } from "../models/Subscription.server";
+
+import banner from "../public/banners/5.png";
 
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
@@ -118,9 +119,6 @@ export default function Index() {
   const submit = useSubmit();
   const hasSubscription = activeSubscriptions.length == 0 ? false : true;
 
-  console.log("billing", billing);
-  console.log("activeSubscriptions", activeSubscriptions);
-
   const handlePurchaseAction = (subscription) => {
     // This sends a subscription request to our action function
     submit({ action: subscription }, { method: "post" });
@@ -138,10 +136,16 @@ export default function Index() {
           <BlockStack gap="400">
             <Layout>
               <Layout.Section>
-                {MessageCard(
-                  "Welcome to EmailWise!",
-                  "Choose a plan to start generating more revenue per email.",
-                )}
+                <img
+                  alt=""
+                  width="100%"
+                  height="100%"
+                  style={{
+                    borderRadius: "10px",
+                    width: "100%",
+                  }}
+                  src={banner}
+                />
               </Layout.Section>
             </Layout>
           </BlockStack>
