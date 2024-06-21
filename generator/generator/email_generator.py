@@ -27,7 +27,9 @@ from .settings import get_settings
 
 GROQ_MODEL_NAME = os.environ.get("GROQ_MODEL_NAME", "llama3-70b-8192")
 OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME", "gpt-4o")
-ANTHROPIC_MODEL_NAME = os.environ.get("ANTHROPIC_MODEL_NAME", "claude-3-opus-20240229")
+ANTHROPIC_MODEL_NAME = os.environ.get(
+    "ANTHROPIC_MODEL_NAME", "claude-3-5-sonnet-20240620"
+)
 TEMPERATURE = os.environ.get("TEMPERATURE", 0.7)
 ALLOW_NO_LLM_PROVIDER = os.environ.get("ALLOW_NO_LLM_PROVIDER", "true") == "true"
 
