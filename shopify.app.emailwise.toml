@@ -3,7 +3,7 @@
 client_id = "317a3485160375756c2386951522cf3a"
 name = "EmailWise Debug"
 handle = "emailwise-debug"
-application_url = "https://columnists-interviews-abraham-vital.trycloudflare.com"
+application_url = "https://he-indicated-pamela-seeing.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://columnists-interviews-abraham-vital.trycloudflare.com/auth/callback",
-  "https://columnists-interviews-abraham-vital.trycloudflare.com/auth/shopify/callback",
-  "https://columnists-interviews-abraham-vital.trycloudflare.com/api/auth/callback"
+  "https://he-indicated-pamela-seeing.trycloudflare.com/auth/callback",
+  "https://he-indicated-pamela-seeing.trycloudflare.com/auth/shopify/callback",
+  "https://he-indicated-pamela-seeing.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

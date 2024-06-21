@@ -3,7 +3,7 @@
 client_id = "95a32be11f449abdebdbdae93c2218bc"
 name = "EmailWise"
 handle = "emailwise"
-application_url = "https://shopify.emailwise.io"
+application_url = "https://app.emailwise.io"
 embedded = true
 
 [build]
@@ -16,15 +16,15 @@ include_config_on_deploy = true
 scopes = "read_products"
 
 [auth]
-redirect_urls = ["https://shopify.emailwise.io/auth/callback"]
+redirect_urls = ["https://app.emailwise.io/auth/callback"]
 
 [webhooks]
 api_version = "2024-04"
 
 [webhooks.privacy_compliance]
-customer_deletion_url = "https://shopify.emailwise.io/webhooks/customers/redact"
-customer_data_request_url = "https://shopify.emailwise.io/webhooks/customers/data_request"
-shop_deletion_url = "https://shopify.emailwise.io/webhooks/shop/redact"
+customer_deletion_url = "https://app.emailwise.io/webhooks/customers/redact"
+customer_data_request_url = "https://app.emailwise.io/webhooks/customers/data_request"
+shop_deletion_url = "https://app.emailwise.io/webhooks/shop/redact"
 
 [pos]
 embedded = false
