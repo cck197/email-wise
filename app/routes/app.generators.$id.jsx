@@ -449,7 +449,8 @@ export default function EmailGeneratorForm() {
               },
             ]}
             primaryAction={{
-              content: "Save",
+              content: "Generate Email",
+              icon: MagicIcon,
               loading: isSaving,
               disabled: !isDirty || isSaving || isDeleting,
               onAction: handleSave,
