@@ -62,7 +62,7 @@ STORIES_PROMPT = """
 """
 
 TONE_PROMPT = """
--  The client has requested that you attempt to write the email with the TONE delimited by tripe backticks below.
+-  The client has requested that you attempt to write the email with the TONE delimited by triple backticks below.
 %TONE%```{tone}```
 """
 

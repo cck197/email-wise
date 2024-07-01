@@ -47,6 +47,8 @@ import {
 } from "/app/models/EmailGenerator.server";
 import { hasActiveSubscription } from "../models/Subscription.server";
 
+const NULL_TONE = { value: null, label: "–" };
+
 export async function loader({ request, params }) {
   const { admin, redirect, session } = await authenticate.admin(request);
   if (!(await hasActiveSubscription(admin.graphql))) {
@@ -56,14 +58,13 @@ export async function loader({ request, params }) {
   if (!settings && !ALLOW_NO_LLM_PROVIDER) {
     return redirect("/app/settings");
   }
-  const tones = await getTones();
+
+  const tones = [NULL_TONE, await getTones()].flat();
   const data = {
     baseUrl: process.env.SSE_URL,
     settings,
     tones,
   };
-
-  const neutral_tone = tones.find((tone) => tone.label === "Neutral");
 
   if (params.id === "new") {
     return json({
@@ -72,7 +73,7 @@ export async function loader({ request, params }) {
         specials: "",
         stories: "",
         likeness: 3,
-        toneId: neutral_tone.value,
+        toneId: null,
       },
       email: null,
       ...data,
@@ -84,7 +85,6 @@ export async function loader({ request, params }) {
   return json({
     generator: {
       ...generator,
-      toneId: generator.toneId || neutral_tone.value,
     },
     ...data,
   });
@@ -224,6 +224,14 @@ export default function EmailGeneratorForm() {
 
   const submit = useSubmit();
   function handleSave() {
+    // if no tone is selected, select a random one
+    if (formState.toneId === null || formState.toneId === NULL_TONE.label) {
+      const validTones = tones.filter((tone) => tone.value !== null);
+      const toneId =
+        validTones[Math.floor(Math.random() * validTones.length)].value;
+      formState.toneId = toneId;
+    }
+
     const data = {
       productTitle: formState.productTitle || "",
       productId: formState.productId || "",
@@ -231,7 +239,7 @@ export default function EmailGeneratorForm() {
       productHandle: formState.productHandle || "",
       specials: formState.specials || "",
       stories: formState.stories || "",
-      toneId: formState?.toneId || tones[0].value,
+      toneId: formState?.toneId,
       likeness: formState.likeness,
     };
     setCleanFormState({ ...formState });
